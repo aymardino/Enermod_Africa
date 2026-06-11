@@ -41,7 +41,7 @@ with st.sidebar:
     st.markdown(
         "<p style='font-size:0.78rem; color:#1E5631; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Filters</p>",
         unsafe_allow_html=True)
-    year_range = st.slider("Publication year", 2010, 2025, (2010, 2025))
+    year_range = st.slider("Publication year", 2000, 2026, (2000, 2026))
     scales = st.multiselect("Scale", sorted([s for s in studies["scale"].dropna().unique() if s]),
                             default=[], placeholder="All")
     approaches = st.multiselect("Approach", sorted([a for a in studies["approach"].dropna().unique() if a]),

@@ -32,7 +32,7 @@ with st.sidebar:
         "<p style='font-size:0.78rem; color:#1E5631; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Map filters</p>",
         unsafe_allow_html=True,
     )
-    year_range = st.slider("Study year range", 2010, 2025, (2010, 2025))
+    year_range = st.slider("Study year range", 2000, 2026, (2000, 2026))
 
     extraction_levels = st.multiselect(
         "Extraction depth",
