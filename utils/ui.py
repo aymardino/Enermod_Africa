@@ -65,7 +65,7 @@ THEME_CSS = """
     padding: 2.9rem 1rem 1rem 1rem !important; overflow: visible !important;
   }
   [data-testid="stLogo"], [data-testid="stSidebarHeader"] img {
-    height: 95px !important; width: auto !important; max-width: 98% !important;
+    height: 70px !important; width: auto !important; max-width: 98% !important;
     object-fit: contain !important; margin: 0 !important;
   }
   [data-testid="stSidebarNav"] { margin-top: 2.5rem !important; }
