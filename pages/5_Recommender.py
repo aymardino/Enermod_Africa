@@ -6,7 +6,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import streamlit as st
 import pandas as pd
-from utils.data import load_tools
+from utils.data import load_tools, db_cache_token
 from utils.ui import SIDEBAR_CSS, render_logo
 
 st.set_page_config(page_title="Recommender | AISESA", layout="wide", page_icon="assets/aisesa_logo.png")
@@ -14,15 +14,15 @@ st.html(SIDEBAR_CSS)
 render_logo()
 
 @st.cache_data(ttl=3600)
-def get_tools():
+def get_tools(db_token):
     return load_tools()
 
-tools = get_tools()
+tools = get_tools(db_cache_token())
 
 with st.sidebar:
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.78rem; color:#1E5631; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>About the recommender</p>",
+        "<p style='font-size:0.78rem; color:var(--text-color); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>About the recommender</p>",
         unsafe_allow_html=True,
     )
     st.markdown(
@@ -38,13 +38,13 @@ with st.sidebar:
     )
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.69rem; color:#5A645E; font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2026</p>",
+        "<p style='font-size:0.69rem; color:var(--text-color); font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2026</p>",
         unsafe_allow_html=True,
     )
 
 st.title("Which tool fits your context?")
 st.markdown(
-    "<p style='font-size:1rem; color:#444; font-family:Georgia,serif; line-height:1.7; max-width:820px;'>"
+    "<p style='font-size:1rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:820px;'>"
     "There is no single best energy model, only the one best suited to your question, your team and your "
     "data. Answer six questions about your context and the recommender ranks the tools in the inventory. "
     "The scoring logic is documented on the Methodology page.</p>",

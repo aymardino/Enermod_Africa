@@ -7,7 +7,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import streamlit as st
 import plotly.express as px
 import pandas as pd
-from utils.data import load_countries, load_studies, enrich_countries
+from utils.data import load_countries, load_studies, enrich_countries, db_cache_token
 from utils.ui import SIDEBAR_CSS, render_logo
 
 st.set_page_config(page_title="Readiness | AISESA", layout="wide", page_icon="assets/aisesa_logo.png")
@@ -17,17 +17,17 @@ render_logo()
 REGION_COLORS = {"north":"#1565C0","west":"#2E7D32","east":"#6A1B9A","central":"#E65100","southern":"#37474F"}
 
 @st.cache_data(ttl=3600)
-def get_data():
+def get_data(db_token):
     c = load_countries()
     s = load_studies()
     return enrich_countries(c, s), s
 
-countries, studies = get_data()
+countries, studies = get_data(db_cache_token())
 
 with st.sidebar:
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.78rem; color:#1E5631; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Readiness score</p>",
+        "<p style='font-size:0.78rem; color:var(--text-color); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Readiness score</p>",
         unsafe_allow_html=True,
     )
     st.markdown(
@@ -42,7 +42,7 @@ with st.sidebar:
     )
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.78rem; color:#1E5631; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Filters</p>",
+        "<p style='font-size:0.78rem; color:var(--text-color); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Filters</p>",
         unsafe_allow_html=True,
     )
     region_filter = st.multiselect("Region", sorted(countries["region"].unique()), default=[], placeholder="All regions", label_visibility="visible")
@@ -50,13 +50,13 @@ with st.sidebar:
     dat_filter = st.multiselect("Data availability", ["good","moderate","poor"], default=[], placeholder="All", label_visibility="visible")
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.69rem; color:#5A645E; font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2026</p>",
+        "<p style='font-size:0.69rem; color:var(--text-color); font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2026</p>",
         unsafe_allow_html=True,
     )
 
 st.title("Which countries are ready to use models?")
 st.markdown(
-    "<p style='font-size:1rem; color:#444; font-family:Georgia,serif; line-height:1.7; max-width:820px;'>"
+    "<p style='font-size:1rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:820px;'>"
     "A model is only as useful as a country's ability to run, maintain and trust it. Readiness combines "
     "institutional capacity, data availability, climate commitments and electrification. These are the conditions "
     "that let modelling translate into policy. The score (0–10) is documented on the Methodology page.</p>",

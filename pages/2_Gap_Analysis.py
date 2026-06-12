@@ -48,14 +48,14 @@ def classify_origin(dev):
 with st.sidebar:
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.78rem; color:#1E5631; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Region filter</p>",
+        "<p style='font-size:0.78rem; color:var(--text-color); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Region filter</p>",
         unsafe_allow_html=True)
     region_filter = st.multiselect(
         "Regions", sorted(countries["region"].unique().tolist()),
         default=[], placeholder="All regions", label_visibility="collapsed")
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.78rem; color:#1E5631; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>How to read this</p>",
+        "<p style='font-size:0.78rem; color:var(--text-color); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>How to read this</p>",
         unsafe_allow_html=True)
     st.markdown(
         "<p style='font-size:0.79rem; line-height:1.7;'>Percentages count only studies where "
@@ -65,7 +65,7 @@ with st.sidebar:
         unsafe_allow_html=True)
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.69rem; color:#5A645E; font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2026</p>",
+        "<p style='font-size:0.69rem; color:var(--text-color); font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2026</p>",
         unsafe_allow_html=True)
 
 countries_view = countries[countries["region"].isin(region_filter)] if region_filter else countries
@@ -73,7 +73,7 @@ countries_view = countries[countries["region"].isin(region_filter)] if region_fi
 # ── Narrative header ─────────────────────────────────────────────────────────────
 st.title("What do the models leave out?")
 st.markdown(
-    "<p style='font-size:1rem; color:#444; font-family:Georgia,serif; line-height:1.7; max-width:820px;'>"
+    "<p style='font-size:1rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:820px;'>"
     "Having seen <i>where</i> modelling happens and <i>who</i> does it, the next question is what it "
     "misses. African energy systems have features like large informal economies, charcoal and biomass use, "
     "unreliable supply, rapid urbanisation that many global models were not built to capture. "

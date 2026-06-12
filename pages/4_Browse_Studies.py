@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import streamlit as st
 import plotly.express as px
 import pandas as pd
-from utils.data import load_studies, load_countries
+from utils.data import load_studies, load_countries, db_cache_token
 from utils.ui import SIDEBAR_CSS, render_logo
 
 st.set_page_config(page_title="Browse Studies | AISESA", layout="wide", page_icon="assets/aisesa_logo.png")
@@ -21,11 +21,11 @@ render_logo()
 
 
 @st.cache_data(ttl=3600)
-def get_data():
+def get_data(db_token):
     return load_studies(), load_countries()
 
 
-studies, countries = get_data()
+studies, countries = get_data(db_cache_token())
 TECH_COLS = ["solar", "wind", "hydro", "biomass", "nuclear", "geothermal", "fossil", "h2", "coal"]
 
 
@@ -39,9 +39,9 @@ def show(value):
 with st.sidebar:
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.78rem; color:#1E5631; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Filters</p>",
+        "<p style='font-size:0.78rem; color:var(--text-color); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Filters</p>",
         unsafe_allow_html=True)
-    year_range = st.slider("Publication year", 2000, 2026, (2000, 2026))
+    year_range = st.slider("Publication year", 2010, 2025, (2010, 2025))
     scales = st.multiselect("Scale", sorted([s for s in studies["scale"].dropna().unique() if s]),
                             default=[], placeholder="All")
     approaches = st.multiselect("Approach", sorted([a for a in studies["approach"].dropna().unique() if a]),
@@ -55,7 +55,7 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.78rem; color:#1E5631; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>African features</p>",
+        "<p style='font-size:0.78rem; color:var(--text-color); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>African features</p>",
         unsafe_allow_html=True)
     f_informal = st.checkbox("Covers informal economy")
     f_biomass = st.checkbox("Covers biomass/charcoal")
@@ -64,7 +64,7 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.78rem; color:#1E5631; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>SDG &amp; policy</p>",
+        "<p style='font-size:0.78rem; color:var(--text-color); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>SDG &amp; policy</p>",
         unsafe_allow_html=True)
     f_sdg7 = st.checkbox("SDG 7 aligned")
     f_sdg13 = st.checkbox("SDG 13 aligned")
@@ -73,14 +73,14 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.78rem; color:#1E5631; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Technology</p>",
+        "<p style='font-size:0.78rem; color:var(--text-color); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Technology</p>",
         unsafe_allow_html=True)
     tech_avail = [t for t in TECH_COLS if t in studies.columns]
     selected_techs = st.multiselect("Must include technology", tech_avail, default=[], placeholder="Any")
 
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.69rem; color:#5A645E; font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2026</p>",
+        "<p style='font-size:0.69rem; color:var(--text-color); font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2026</p>",
         unsafe_allow_html=True)
 
 # ── Apply filters ───────────────────────────────────────────────────────────────
@@ -105,7 +105,7 @@ for tech in selected_techs:
 # ── Narrative header ─────────────────────────────────────────────────────────────
 st.title("Explore the evidence")
 st.markdown(
-    "<p style='font-size:1rem; color:#444; font-family:Georgia,serif; line-height:1.7; max-width:820px;'>"
+    "<p style='font-size:1rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:820px;'>"
     "The full inventory, open for inspection. Filter by approach, tool, technology or policy alignment, "
     "then open any study to see everything that was extracted from it.</p>",
     unsafe_allow_html=True)

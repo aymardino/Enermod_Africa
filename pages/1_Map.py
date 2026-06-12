@@ -7,7 +7,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import streamlit as st
 import plotly.express as px
 import pandas as pd
-from utils.data import load_countries, load_studies, enrich_countries, get_country_studies
+from utils.data import load_countries, load_studies, enrich_countries, get_country_studies, db_cache_token
 from utils.ui import SIDEBAR_CSS, render_logo
 
 st.set_page_config(page_title="Map | AISESA", layout="wide", page_icon="assets/aisesa_logo.png")
@@ -18,21 +18,21 @@ REGION_COLORS = {"north":"#1565C0","west":"#2E7D32","east":"#6A1B9A","central":"
 POOL_COLORS   = {"COMELEC":"#0277BD","WAPP":"#2E7D32","EAPP":"#6A1B9A","CAPP":"#BF360C","SAPP":"#37474F"}
 
 @st.cache_data(ttl=3600)
-def get_data():
+def get_data(db_token):
     c = load_countries()
     s = load_studies()
     return enrich_countries(c, s), s
 
-countries_full, studies = get_data()
+countries_full, studies = get_data(db_cache_token())
 
 # ── Sidebar filters ────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.78rem; color:#1E5631; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Map filters</p>",
+        "<p style='font-size:0.78rem; color:var(--text-color); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Map filters</p>",
         unsafe_allow_html=True,
     )
-    year_range = st.slider("Study year range", 2000, 2026, (2000, 2026))
+    year_range = st.slider("Study year range", 2010, 2025, (2010, 2025))
 
     extraction_levels = st.multiselect(
         "Extraction depth",
@@ -58,7 +58,7 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.78rem; color:#1E5631; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Map legend</p>",
+        "<p style='font-size:0.78rem; color:var(--text-color); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Map legend</p>",
         unsafe_allow_html=True,
     )
     def dot(color):
@@ -78,7 +78,7 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.69rem; color:#5A645E; font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2026</p>",
+        "<p style='font-size:0.69rem; color:var(--text-color); font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2026</p>",
         unsafe_allow_html=True,
     )
 
@@ -103,7 +103,7 @@ countries["nb_models_applied"] = countries["iso_code"].apply(count_filtered)
 
 st.title("Where is Africa being modelled?")
 st.markdown(
-    "<p style='font-size:1rem; color:#444; font-family:Georgia,serif; line-height:1.7; max-width:820px;'>"
+    "<p style='font-size:1rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:820px;'>"
     "Modelling effort is not spread evenly across the continent. A handful of countries attract most "
     "studies while others have barely been modelled at all. Use the layers and filters below to see "
     "where attention concentrates and where it is absent.</p>",

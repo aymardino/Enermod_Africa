@@ -7,7 +7,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 import streamlit as st
 import plotly.express as px
 from utils.data import (load_countries, load_studies, load_tools,
-                        enrich_countries, coverage, ISO2_TO_ISO3)
+                        enrich_countries, coverage, ISO2_TO_ISO3, db_cache_token)
 from utils.ui import SIDEBAR_CSS, beta_banner, GREEN, render_logo, inventory_breakdown
 
 st.set_page_config(
@@ -33,7 +33,7 @@ def _origin(d):
 
 
 @st.cache_data(ttl=3600)
-def get_stats():
+def get_stats(db_token: int):
     studies = load_studies()
     countries = load_countries()
     tools = load_tools()
@@ -60,19 +60,19 @@ def get_stats():
                 informal=informal, opensrc=opensrc, by_year=by_year)
 
 
-S = get_stats()
+S = get_stats(db_cache_token())
 
 # ── Sidebar ─────────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown(
-        "<p style='font-size:0.78rem; color:#2C352F; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Platform</p>",
+        "<p style='font-size:0.78rem; color:var(--text-color); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Platform</p>",
         unsafe_allow_html=True)
     st.markdown(
         "<p style='font-size:0.82rem; line-height:1.6;'>A living inventory of energy modelling "
         "studies and tools applied across Africa.</p>", unsafe_allow_html=True)
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.78rem; color:#1E5631; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Quick stats</p>",
+        "<p style='font-size:0.78rem; color:var(--text-color); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Quick stats</p>",
         unsafe_allow_html=True)
     cs1, cs2 = st.columns(2)
     cs1.metric("Countries", S["n_countries"])
@@ -81,7 +81,7 @@ with st.sidebar:
     cs2.metric("Period", f"{S['y0']}–{S['y1']}")
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.78rem; color:#1E5631; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Views</p>",
+        "<p style='font-size:0.78rem; color:var(--text-color); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Views</p>",
         unsafe_allow_html=True)
     st.markdown(
         """<ul style='font-size:0.82rem; line-height:2; padding-left:1rem;'>
@@ -94,7 +94,7 @@ with st.sidebar:
         </ul>""", unsafe_allow_html=True)
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.69rem; color:#5A645E; font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2026</p>",
+        "<p style='font-size:0.69rem; color:var(--text-color); font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2026</p>",
         unsafe_allow_html=True)
 
 # ── Header ──────────────────────────────────────────────────────────────────────
@@ -103,14 +103,14 @@ st.markdown(
     "<h1 style='margin-top:0.4rem; margin-bottom:0;'>African Energy Modelling Observatory</h1>",
     unsafe_allow_html=True)
 st.markdown(
-    "<p style='color:#4A5650; margin-top:2px; font-size:1.09rem; font-family:\"Source Serif 4\",Georgia,serif; font-style:italic;'>"
+    "<p style='color:var(--text-color); margin-top:2px; font-size:1.09rem; font-family:\"Source Serif 4\",Georgia,serif; font-style:italic;'>"
     "How is Africa's energy future being modelled? by whom, with what tools, and where are the silences?</p>",
     unsafe_allow_html=True)
 
 
 # ── Narrative framing (live figures) ─────────────────────────────────────────────
 st.markdown(f"""
-<div style='font-family:Georgia,serif; font-size:1rem; line-height:1.7; color:#2c2c2a; max-width:900px; margin:0;'>
+<div style='font-family:Georgia,serif; font-size:1rem; line-height:1.7; color:var(--text-color); max-width:900px; margin:0;'>
 
 <p>The <i>African Energy Modelling Observatory</i> is a living synthesis of how energy systems
 across the continent are represented in quantitative models. It currently documents
@@ -175,41 +175,41 @@ _n_light = _lvl_counts.get("light", 0)
 _n_narr = _lvl_counts.get("narrative", 0)
 
 st.markdown(f"""
-<div style='background:#F4F7F2; padding:18px 22px;
+<div style='background:rgba(128,128,128,0.06); padding:18px 22px;
             border-radius:4px; margin:18px 0 24px 0; font-family:Inter,sans-serif;'>
-  <p style='margin:0 0 12px 0; font-size:1.1rem; color:#2c2c2a;
+  <p style='margin:0 0 12px 0; font-size:1.1rem; color:var(--text-color);
             text-transform:uppercase; letter-spacing:0.08em; font-weight:800;'>
     <b>What's in this inventory</b>
   </p>
-  <p style='margin:0 0 14px 0; font-size:0.88rem; color:#2c2c2a; line-height:1.4;'>
+  <p style='margin:0 0 14px 0; font-size:0.88rem; color:var(--text-color); line-height:1.4;'>
     Studies are classified by <b>extraction depth</b>: how detailed the data we extracted is.
     This matters: statistics computed on a mix of these three categories can be misleading,
     so most analytical pages let you filter by level.
   </p>
   <div style='display:grid; grid-template-columns:repeat(3, 1fr); gap:14px;'>
-    <div style='background:white; padding:12px 14px; border-radius:6px;'>
-      <div style='font-size:1.1rem; font-weight:700; color:#2E7D32;'>{_n_full}</div>
-      <div style='font-size:0.88rem; color:#1E5631; text-transform:uppercase;
+    <div style='background:rgba(128,128,128,0.12); padding:12px 14px; border-radius:6px;'>
+      <div style='font-size:1.1rem; font-weight:700; color:var(--text-color);'>{_n_full}</div>
+      <div style='font-size:0.88rem; color:var(--text-color); text-transform:uppercase;
                   letter-spacing:0.05em; font-weight:700; margin:2px 0 6px 0;'><b>full</b></div>
-      <div style='font-size:0.82rem; color:#4A5650; line-height:1.4;'>
+      <div style='font-size:0.82rem; color:var(--text-color); line-height:1.4;'>
         Long-term planning models (MESSAGE, OSeMOSYS, TIMES, LEAP, PLEXOS).
         All 50+ fields extracted.
       </div>
     </div>
-    <div style='background:white; padding:12px 14px; border-radius:6px;'>
-      <div style='font-size:1.1rem; font-weight:700; color:#B8860B;'>{_n_light}</div>
-      <div style='font-size:0.88rem; color:#8A6300; text-transform:uppercase;
+    <div style='background:rgba(128,128,128,0.12); padding:12px 14px; border-radius:6px;'>
+      <div style='font-size:1.1rem; font-weight:700; color:var(--text-color);'>{_n_light}</div>
+      <div style='font-size:0.88rem; color:var(--text-color); text-transform:uppercase;
                   letter-spacing:0.05em; font-weight:700; margin:2px 0 6px 0;'><b>light</b></div>
-      <div style='font-size:0.82rem; color:#4A5650; line-height:1.4;'>
+      <div style='font-size:0.82rem; color:var(--text-color); line-height:1.4;'>
         Techno-economic, GIS, mini-grid or simulation studies (HOMER, OnSSET, custom code).
         Core fields only.
       </div>
     </div>
-    <div style='background:white; padding:12px 14px; border-radius:6px;'>
-      <div style='font-size:1.1rem; font-weight:700; color:#6B5B95;'>{_n_narr}</div>
-      <div style='font-size:0.88rem; color:#4B3E6E; text-transform:uppercase;
+    <div style='background:rgba(128,128,128,0.12); padding:12px 14px; border-radius:6px;'>
+      <div style='font-size:1.1rem; font-weight:700; color:var(--text-color);'>{_n_narr}</div>
+      <div style='font-size:0.88rem; color:var(--text-color); text-transform:uppercase;
                   letter-spacing:0.05em; font-weight:700; margin:2px 0 6px 0;'><b>narrative</b></div>
-      <div style='font-size:0.82rem; color:#4A5650; line-height:1.4;'>
+      <div style='font-size:0.82rem; color:var(--text-color); line-height:1.4;'>
         Country-policy documents (NDCs, national plans, World Bank country reports).
         Summary fields only.
       </div>
@@ -220,6 +220,6 @@ st.markdown(f"""
 st.divider()
 
 st.markdown(
-    "<p style='text-align:center; font-size:0.92rem; color:#aaa; margin-top:24px;'>"
+    "<p style='text-align:center; font-size:0.92rem; color:var(--text-color); margin-top:24px;'>"
     "<b>AISESA &nbsp;·&nbsp; MINES Paris-PSL &nbsp;·&nbsp; Research Platform</b></p>",
     unsafe_allow_html=True)

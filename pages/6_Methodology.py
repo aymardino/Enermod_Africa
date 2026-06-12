@@ -24,7 +24,7 @@ lv = studies["extraction_level"].value_counts()
 with st.sidebar:
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.78rem; color:#1E5631; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>On this page</p>",
+        "<p style='font-size:0.78rem; color:var(--text-color); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>On this page</p>",
         unsafe_allow_html=True)
     st.markdown(
         "<p style='font-size:0.82rem; line-height:1.9;'>· Extraction levels<br>· Empty-cell rule<br>"
@@ -32,12 +32,12 @@ with st.sidebar:
         unsafe_allow_html=True)
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:0.68rem; color:#5A645E; font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2025</p>",
+        "<p style='font-size:0.68rem; color:var(--text-color); font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2025</p>",
         unsafe_allow_html=True)
 
 st.title("Methodology & scores")
 st.markdown(
-    "<p style='font-size:1.05rem; color:#444; font-family:Georgia,serif; line-height:1.7; max-width:820px;'>"
+    "<p style='font-size:1.05rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:820px;'>"
     "Every figure on this platform is reproducible. This page documents how studies are extracted, how "
     "empty data is treated, and exactly how each composite score is computed — so the indicators can be "
     "scrutinised and replicated.</p>",
