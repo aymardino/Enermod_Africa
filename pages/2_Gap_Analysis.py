@@ -73,7 +73,7 @@ countries_view = countries[countries["region"].isin(region_filter)] if region_fi
 # ── Narrative header ─────────────────────────────────────────────────────────────
 st.title("What do the models leave out?")
 st.markdown(
-    "<p style='font-size:1rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:820px;'>"
+    "<p style='font-size:1rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:1100px;text-align:justify; hyphens:auto;'>"
     "Having seen <i>where</i> modelling happens and <i>who</i> does it, the next question is what it "
     "misses. African energy systems have features like large informal economies, charcoal and biomass use, "
     "unreliable supply, rapid urbanisation that many global models were not built to capture. "

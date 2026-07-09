@@ -41,7 +41,7 @@ with st.sidebar:
     st.markdown(
         "<p style='font-size:0.78rem; color:var(--text-color); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Filters</p>",
         unsafe_allow_html=True)
-    year_range = st.slider("Publication year", 2010, 2025, (2010, 2025))
+    year_range = st.slider("Publication year", 2000, 2026, (2000, 2026))
     scales = st.multiselect("Scale", sorted([s for s in studies["scale"].dropna().unique() if s]),
                             default=[], placeholder="All")
     approaches = st.multiselect("Approach", sorted([a for a in studies["approach"].dropna().unique() if a]),
@@ -105,7 +105,7 @@ for tech in selected_techs:
 # ── Narrative header ─────────────────────────────────────────────────────────────
 st.title("Explore the evidence")
 st.markdown(
-    "<p style='font-size:1rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:820px;'>"
+    "<p style='font-size:1rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:1100px;text-align:justify; hyphens:auto;'>"
     "The full inventory, open for inspection. Filter by approach, tool, technology or policy alignment, "
     "then open any study to see everything that was extracted from it.</p>",
     unsafe_allow_html=True)

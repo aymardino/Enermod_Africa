@@ -44,7 +44,7 @@ with st.sidebar:
 
 st.title("Which tool fits your context?")
 st.markdown(
-    "<p style='font-size:1rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:820px;'>"
+    "<p style='font-size:1rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:1100px;text-align:justify; hyphens:auto;'>"
     "There is no single best energy model, only the one best suited to your question, your team and your "
     "data. Answer six questions about your context and the recommender ranks the tools in the inventory. "
     "The scoring logic is documented on the Methodology page.</p>",

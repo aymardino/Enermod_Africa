@@ -37,7 +37,7 @@ with st.sidebar:
 
 st.title("Methodology & scores")
 st.markdown(
-    "<p style='font-size:1.05rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:820px;'>"
+    "<p style='font-size:1.05rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:1100px;text-align:justify; hyphens:auto;'>"
     "Every figure on this platform is reproducible. This page documents how studies are extracted, how "
     "empty data is treated, and exactly how each composite score is computed — so the indicators can be "
     "scrutinised and replicated.</p>",

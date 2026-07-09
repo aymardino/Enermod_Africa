@@ -32,7 +32,7 @@ with st.sidebar:
         "<p style='font-size:0.78rem; color:var(--text-color); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Map filters</p>",
         unsafe_allow_html=True,
     )
-    year_range = st.slider("Study year range", 2010, 2025, (2010, 2025))
+    year_range = st.slider("Study year range", 2000, 2026, (2000, 2026))
 
     extraction_levels = st.multiselect(
         "Extraction depth",
@@ -103,7 +103,7 @@ countries["nb_models_applied"] = countries["iso_code"].apply(count_filtered)
 
 st.title("Where is Africa being modelled?")
 st.markdown(
-    "<p style='font-size:1rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:820px;'>"
+    "<p style='font-size:1rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:1000px;text-align:justify; hyphens:auto;'>"
     "Modelling effort is not spread evenly across the continent. A handful of countries attract most "
     "studies while others have barely been modelled at all. Use the layers and filters below to see "
     "where attention concentrates and where it is absent.</p>",

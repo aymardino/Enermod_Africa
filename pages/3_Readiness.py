@@ -56,7 +56,7 @@ with st.sidebar:
 
 st.title("Which countries are ready to use models?")
 st.markdown(
-    "<p style='font-size:1rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:820px;'>"
+    "<p style='font-size:1rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:1100px;text-align:justify; hyphens:auto;'>"
     "A model is only as useful as a country's ability to run, maintain and trust it. Readiness combines "
     "institutional capacity, data availability, climate commitments and electrification. These are the conditions "
     "that let modelling translate into policy. The score (0–10) is documented on the Methodology page.</p>",

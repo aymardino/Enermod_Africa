@@ -6,9 +6,125 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 import streamlit as st
 import plotly.express as px
+import plotly.graph_objects as go
 from utils.data import (load_countries, load_studies, load_tools,
                         enrich_countries, coverage, ISO2_TO_ISO3, db_cache_token)
 from utils.ui import SIDEBAR_CSS, beta_banner, GREEN, render_logo, inventory_breakdown
+import pandas as pd
+
+# ISO-2 -> ISO-3 for NON-African author origins (African codes come from
+# ISO2_TO_ISO3). Add any new origin country here if it ever shows up unmapped.
+_WORLD_ISO3 = {
+    "US": "USA", "CA": "CAN", "MX": "MEX", "BR": "BRA", "AR": "ARG", "CL": "CHL",
+    "CO": "COL", "PE": "PER", "GB": "GBR", "IE": "IRL", "FR": "FRA", "DE": "DEU",
+    "IT": "ITA", "ES": "ESP", "PT": "PRT", "NL": "NLD", "BE": "BEL", "LU": "LUX",
+    "CH": "CHE", "AT": "AUT", "SE": "SWE", "NO": "NOR", "DK": "DNK", "FI": "FIN",
+    "IS": "ISL", "PL": "POL", "CZ": "CZE", "SK": "SVK", "HU": "HUN", "GR": "GRC",
+    "RO": "ROU", "BG": "BGR", "HR": "HRV", "RS": "SRB", "EE": "EST", "LV": "LVA",
+    "LT": "LTU", "RU": "RUS", "UA": "UKR", "TR": "TUR", "IL": "ISR", "SA": "SAU",
+    "AE": "ARE", "QA": "QAT", "IR": "IRN", "IN": "IND", "PK": "PAK", "BD": "BGD",
+    "CN": "CHN", "JP": "JPN", "KR": "KOR", "TW": "TWN", "HK": "HKG", "SG": "SGP",
+    "MY": "MYS", "ID": "IDN", "TH": "THA", "VN": "VNM", "PH": "PHL", "AU": "AUS",
+    "NZ": "NZL", "RE": "REU",
+}
+# African entries win on any overlap.
+ISO2_TO_ISO3_WORLD = {**_WORLD_ISO3, **ISO2_TO_ISO3}
+
+# Names for non-African origins (African names come from the countries table).
+_WORLD_NAMES = {
+    "US": "United States", "CA": "Canada", "MX": "Mexico", "BR": "Brazil",
+    "AR": "Argentina", "CL": "Chile", "CO": "Colombia", "PE": "Peru",
+    "GB": "United Kingdom", "IE": "Ireland", "FR": "France", "DE": "Germany",
+    "IT": "Italy", "ES": "Spain", "PT": "Portugal", "NL": "Netherlands",
+    "BE": "Belgium", "LU": "Luxembourg", "CH": "Switzerland", "AT": "Austria",
+    "SE": "Sweden", "NO": "Norway", "DK": "Denmark", "FI": "Finland",
+    "IS": "Iceland", "PL": "Poland", "CZ": "Czechia", "SK": "Slovakia",
+    "HU": "Hungary", "GR": "Greece", "RO": "Romania", "BG": "Bulgaria",
+    "HR": "Croatia", "RS": "Serbia", "EE": "Estonia", "LV": "Latvia",
+    "LT": "Lithuania", "RU": "Russia", "UA": "Ukraine", "TR": "Turkey",
+    "IL": "Israel", "SA": "Saudi Arabia", "AE": "United Arab Emirates",
+    "QA": "Qatar", "IR": "Iran", "IN": "India", "PK": "Pakistan",
+    "BD": "Bangladesh", "CN": "China", "JP": "Japan", "KR": "South Korea",
+    "TW": "Taiwan", "HK": "Hong Kong", "SG": "Singapore", "MY": "Malaysia",
+    "ID": "Indonesia", "TH": "Thailand", "VN": "Vietnam", "PH": "Philippines",
+    "AU": "Australia", "NZ": "New Zealand", "RE": "Réunion",
+}
+
+# Colours for the two origin groups.
+_AFR_COLOR = "#2F7D4F"       # African-based authors (brand green)
+_NONAFR_COLOR = "#D98A29"    # authors based outside the continent (amber)
+
+# ── Choose which map style to keep once you've decided: "bubbles" | "choropleth"
+MAP_STYLE = "choropleth"
+
+_GEO = dict(
+    projection_type="natural earth",
+    showframe=False, showcoastlines=False,
+    showland=True, landcolor="rgba(128,128,128,0.10)",
+    showcountries=True, countrycolor="rgba(128,128,128,0.20)",
+    bgcolor="rgba(0,0,0,0)",
+)
+
+
+def author_origin_bubbles(df):
+    """VERSION A — one bubble per country: size = number of studies,
+    colour = African-based (green) vs outside Africa (amber). Best for
+    *comparing counts* (Sweden 13 is a big circle, Belgium 1 a tiny one)."""
+    fig = px.scatter_geo(
+        df, locations="iso3", size="n", color="group", hover_name="name",
+        hover_data={"n": True, "iso3": False, "group": False},
+        color_discrete_map={"African-based": _AFR_COLOR,
+                            "Based outside Africa": _NONAFR_COLOR},
+        category_orders={"group": ["African-based", "Based outside Africa"]},
+        size_max=34, labels={"n": "Studies"},
+    )
+    fig.update_traces(marker=dict(line=dict(width=0.6, color="rgba(255,255,255,0.65)"),
+                                  opacity=0.9))
+    fig.update_geos(**_GEO)
+    fig.update_layout(
+        height=380, margin={"t": 0, "b": 0, "l": 0, "r": 0},
+        paper_bgcolor="rgba(0,0,0,0)", geo_bgcolor="rgba(0,0,0,0)",
+        legend=dict(title="", orientation="h", yanchor="bottom", y=-0.02,
+                    xanchor="center", x=0.5),
+    )
+    return fig
+
+
+def author_origin_choropleth(df):
+    """VERSION B — two shaded layers: African countries in a green scale and
+    non-African countries in an amber scale, each darker with more studies.
+    Two small colour bars on the right show the intensity per group."""
+    afr = df[df["group"] == "African-based"]
+    non = df[df["group"] == "Based outside Africa"]
+    fig = go.Figure()
+    fig.add_choropleth(
+        locations=afr["iso3"], z=afr["n"], text=afr["name"],
+        colorscale=[[0, "#CFE6D6"], [1, "#12402A"]],
+        marker_line_color="rgba(128,128,128,0.30)", marker_line_width=0.3,
+        colorbar=dict(title=dict(text="Africa", side="top"), x=1.00, y=0.76,
+                      len=0.46, thickness=8),
+        hovertemplate="<b>%{text}</b><br>%{z} studies<extra>African-based</extra>",
+    )
+    fig.add_choropleth(
+        locations=non["iso3"], z=non["n"], text=non["name"],
+        colorscale=[[0, "#F6D9BC"], [1, "#7E430E"]],
+        marker_line_color="rgba(128,128,128,0.30)", marker_line_width=0.3,
+        colorbar=dict(title=dict(text="Outside", side="top"), x=1.08, y=0.24,
+                      len=0.46, thickness=8),
+        hovertemplate="<b>%{text}</b><br>%{z} studies<extra>Outside Africa</extra>",
+    )
+    fig.update_geos(**_GEO)
+    fig.update_layout(
+        height=380, margin={"t": 0, "b": 0, "l": 0, "r": 60},
+        paper_bgcolor="rgba(0,0,0,0)", geo_bgcolor="rgba(0,0,0,0)",
+    )
+    return fig
+
+
+def author_origin_map(df):
+    """Dispatch to the chosen style (set MAP_STYLE above)."""
+    return (author_origin_bubbles(df) if MAP_STYLE == "bubbles"
+            else author_origin_choropleth(df))
 
 st.set_page_config(
     page_title="AISESA | African Energy Modelling Observatory",
@@ -55,9 +171,30 @@ def get_stats(db_token: int):
     by_year = years.astype(int).value_counts().sort_index().reset_index()
     by_year.columns = ["Year", "Studies"]
 
+    # Author-origin counts (each country counted once per study) -> world map df
+    from collections import Counter
+    _oc = Counter()
+    for d in studies["developer_origin"].dropna():
+        for code in {x.strip()[:2].upper()
+                     for x in str(d).replace(",", ";").split(";") if x.strip()}:
+            _oc[code] += 1
+    _afr_name = dict(zip(countries["iso_code"], countries["country_name"]))
+    _rows = []
+    for c, v in _oc.items():
+        if c not in ISO2_TO_ISO3_WORLD:
+            continue
+        is_afr = c in AFRICAN_ISOS
+        _rows.append({
+            "iso3": ISO2_TO_ISO3_WORLD[c], "n": v,
+            "group": "African-based" if is_afr else "Based outside Africa",
+            "name": _afr_name.get(c) or _WORLD_NAMES.get(c, c),
+        })
+    origin_map = pd.DataFrame(_rows)
+
     return dict(n=n, n_tools=len(tools), n_countries=len(countries), covered=covered,
                 y0=y0, y1=y1, nonafr=nonafr, african_led=african_led, adhoc=adhoc,
-                informal=informal, opensrc=opensrc, by_year=by_year)
+                informal=informal, opensrc=opensrc, by_year=by_year,
+                origin_map=origin_map)
 
 
 S = get_stats(db_cache_token())
@@ -110,7 +247,7 @@ st.markdown(
 
 # ── Narrative framing (live figures) ─────────────────────────────────────────────
 st.markdown(f"""
-<div style='font-family:Georgia,serif; font-size:1rem; line-height:1.7; color:var(--text-color); max-width:900px; margin:0;'>
+<div style='font-family:Georgia,serif; font-size:1rem; line-height:1.7; color:var(--text-color); max-width:1200px; margin:0; text-align:justify; hyphens:auto;'>
 
 <p>The <i>African Energy Modelling Observatory</i> is a living synthesis of how energy systems
 across the continent are represented in quantitative models. It currently documents
@@ -129,6 +266,14 @@ might close those gaps. Every figure on this platform updates automatically as n
 
 </div>
 """, unsafe_allow_html=True)
+
+st.markdown(
+    "<div style='font-family:Georgia,serif; font-weight:600; font-size:0.98rem; "
+    "margin:0 0 0.3rem 0;'>Where the authors are based</div>",
+    unsafe_allow_html=True)
+st.plotly_chart(author_origin_map(S["origin_map"]), use_container_width=True)
+st.caption("Author institutions by country, counted once per study — "
+            "most modelling effort is still based outside Africa.")
 
 st.divider()
 
