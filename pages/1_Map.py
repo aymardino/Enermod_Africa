@@ -116,7 +116,7 @@ st.markdown(
 
 mode = st.radio(
     "Map layer",
-    ["Model Density", "Gap Score", "Readiness Score"],
+    ["Model Density"],
     horizontal=True,
     label_visibility="collapsed",
 )
@@ -150,18 +150,9 @@ def make_choropleth(df, color_col, color_scale, label, color_discrete_map=None):
                       paper_bgcolor="rgba(0,0,0,0)")
     return fig
 
-if mode == "Model Density":
-    fig = make_choropleth(countries, "nb_models_applied", ["#C8E6C9","#1B5E20"], "Studies applied")
-
-elif mode == "Gap Score":
-    fig = make_choropleth(countries, "gap_score", ["#1B5E20","#FDD835","#B71C1C"], "Gap score (0-100)")
-else:
-    fig = make_choropleth(countries, "readiness_score", ["#B71C1C","#FDD835","#1B5E20"], "Readiness (0-10)")
+fig = make_choropleth(countries, "nb_models_applied", ["#C8E6C9","#1B5E20"], "Studies applied")
 
 st.plotly_chart(fig, use_container_width=True)
-
-if mode == "Gap Score":
-    st.caption("Gap score 0–100: higher = more under-served (accounts for African feature coverage, institutional capacity, data availability, model density)")
 
 st.divider()
 
