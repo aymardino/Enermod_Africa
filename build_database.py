@@ -104,7 +104,7 @@ CREATE TABLE study_tools (
     FOREIGN KEY (study_id) REFERENCES studies(study_id)
 );
 CREATE TABLE study_countries (
-    study_id INTEGER, iso_code TEXT, scale TEXT, iso3 TEXT, country TEXT,
+    study_id INTEGER, iso_code TEXT, iso3 TEXT, country TEXT,
     PRIMARY KEY (study_id, iso_code),
     FOREIGN KEY (study_id) REFERENCES studies(study_id),
     FOREIGN KEY (iso_code) REFERENCES countries(iso_code)
