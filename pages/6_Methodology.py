@@ -47,30 +47,28 @@ st.divider()
 # ── Extraction levels ────────────────────────────────────────────────────────────
 st.header("Extraction levels")
 st.markdown(
-    "Each study is classified at one of three extraction depths, based on **what kind of "
-    "document it is** and **what kind of model it uses**. Lighter levels intentionally "
-    "leave methodological fields blank — this is recorded, not hidden.")
+    "Each study is classified at one of two extraction depths, based on the **type of "
+    "model** used. The lighter level intentionally leaves methodological fields blank "
+    "when they are not applicable — this is recorded, not hidden.")
 st.markdown(
     "- **Full** — long-term planning models (MESSAGE, OSeMOSYS, TIMES, LEAP, PLEXOS, "
-    "Balmorel). These have a multi-decade horizon and model full energy systems. "
-    "All 50+ structured fields extracted, including methodological details "
-    "(mathematical approach, energy vectors, strengths/weaknesses, financing).\n"
-    "- **Light** — techno-economic, GIS-based, electrification, mini-grid or simulation "
-    "studies (HOMER, OnSSET, RETScreen, custom GIS code, site-specific analyses). "
-    "About 34 core fields extracted (scale, countries, tool, objective, key result, "
-    "AISESA themes, authorship). Detailed methodology fields are omitted by design.\n"
-    "- **Narrative** — country-policy documents (NDCs, national energy plans, "
-    "SE4All Action Agendas, World Bank or AfDB country reports). About 24 summary "
-    "fields extracted, focused on identification, scope, and policy framing. "
-    "Even if these documents use models internally (e.g. a NDC using GACMO), they "
-    "remain classified as narrative because the *document type* is country-policy.\n"
-    "- **Unspecified** — extraction depth not yet recorded.")
+    "Balmorel). Multi-decade horizon, full energy systems. All 50+ structured fields "
+    "extracted. This applies to peer-reviewed articles, technical reports, AND "
+    "country-policy documents that use one of these tools (e.g. a NDC using LEAP).\n"
+    "- **Light** — everything else: techno-economic studies, GIS-based analyses, "
+    "electrification / mini-grid studies, calculators (HOMER, OnSSET, GACMO, CERC), "
+    "and country-policy documents without a long-term planning model. Core fields "
+    "extracted (~34 fields), methodological fields specific to system optimisation "
+    "are omitted.\n"
+    "- **Unspecified** — extraction depth not yet recorded.\n\n"
+    "Whether a document is grey literature (NDC, WB report) or peer-reviewed is "
+    "captured by the separate `grey_literature` field, not by the extraction level.")
 st.warning("⚠ Mixing levels in statistics can mislead. For example, "
-           "'Top tools by usage' computed across all 3 levels will dilute MESSAGE/OSeMOSYS "
+           "'Top tools by usage' computed across both levels will dilute MESSAGE/OSeMOSYS "
            "(typical of full) with HOMER (typical of light). Most analytical pages let "
            "you filter by level — use it to keep comparisons honest.")
-st.info(f"Current inventory ({n} studies): {int(lv.get('full',0))} full · {int(lv.get('light',0))} light · "
-        f"{int(lv.get('narrative',0))} narrative · {int(lv.get('unspecified',0))} unspecified.")
+st.info(f"Current inventory ({n} studies): {int(lv.get('full',0))} full · "
+        f"{int(lv.get('light',0))} light · {int(lv.get('unspecified',0))} unspecified.")
 
 # ── Empty-cell rule ────────────────────────────────────────────────────────────
 st.header("How empty cells are treated")

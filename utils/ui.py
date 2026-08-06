@@ -115,11 +115,10 @@ def beta_banner() -> str:
 
 
 # ── Extraction-level filter (used on Gap, Readiness, Browse, Map) ────────────────
-EXTRACTION_LEVELS = ["full", "light", "narrative"]
+EXTRACTION_LEVELS = ["full", "light"]
 LEVEL_DESCRIPTIONS = {
     "full": "Long-term planning models (MESSAGE, OSeMOSYS, TIMES, LEAP)",
     "light": "Techno-economic / GIS / electrification studies (HOMER, OnSSET, custom)",
-    "narrative": "Country-policy documents (NDCs, World Bank country reports)",
 }
 
 
@@ -142,11 +141,10 @@ def extraction_level_filter(df, default="full", key_suffix=""):
         format_func=fmt,
         key=f"el_filter{key_suffix}",
         help=(
-            "Studies are categorised by depth of analysis. "
-            "**Full** = long-term planning models. **Light** = techno-economic, "
-            "GIS, mini-grid or simulation studies. **Narrative** = country-policy "
-            "documents (NDCs, World Bank country reports). Mixing levels in "
-            "statistics can be misleading."
+            "Studies are categorised by the type of model used. "
+            "**Full** = long-term planning models (MESSAGE, OSeMOSYS, TIMES, LEAP, PLEXOS). "
+            "**Light** = everything else (techno-economic, GIS, calculators, and policy documents "
+            "without a planning model). Mixing levels in statistics can be misleading."
         ),
     )
     if picked != "all":
@@ -155,7 +153,7 @@ def extraction_level_filter(df, default="full", key_suffix=""):
         return df[df["extraction_level"] == picked].copy()
     else:
         st.caption(f"Showing all {total} studies across levels. "
-                   "Statistics aggregate full, light and narrative studies together.")
+                   "Statistics aggregate full and light studies together.")
         return df.copy()
 
 

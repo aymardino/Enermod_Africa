@@ -317,7 +317,6 @@ _studies_for_breakdown = load_studies()
 _lvl_counts = _studies_for_breakdown["extraction_level"].fillna("(unclassified)").value_counts().to_dict()
 _n_full = _lvl_counts.get("full", 0)
 _n_light = _lvl_counts.get("light", 0)
-_n_narr = _lvl_counts.get("narrative", 0)
 
 st.markdown(f"""
 <div style='background:rgba(128,128,128,0.06); padding:18px 22px;
@@ -328,17 +327,18 @@ st.markdown(f"""
   </p>
   <p style='margin:0 0 14px 0; font-size:0.88rem; color:var(--text-color); line-height:1.4;'>
     Studies are classified by <b>extraction depth</b>: how detailed the data we extracted is.
-    This matters: statistics computed on a mix of these three categories can be misleading,
-    so most analytical pages let you filter by level.
+    This depends on the type of model used. Statistics computed on a mix of these two
+    categories can be misleading, so most analytical pages let you filter by level.
   </p>
-  <div style='display:grid; grid-template-columns:repeat(3, 1fr); gap:14px;'>
+  <div style='display:grid; grid-template-columns:repeat(2, 1fr); gap:14px;'>
     <div style='background:rgba(128,128,128,0.12); padding:12px 14px; border-radius:6px;'>
       <div style='font-size:1.1rem; font-weight:700; color:var(--text-color);'>{_n_full}</div>
       <div style='font-size:0.88rem; color:var(--text-color); text-transform:uppercase;
                   letter-spacing:0.05em; font-weight:700; margin:2px 0 6px 0;'><b>full</b></div>
       <div style='font-size:0.82rem; color:var(--text-color); line-height:1.4;'>
-        Long-term planning models (MESSAGE, OSeMOSYS, TIMES, LEAP, PLEXOS).
-        All 50+ fields extracted.
+        Long-term planning models (MESSAGE, OSeMOSYS, TIMES, LEAP, PLEXOS, Balmorel).
+        All 50+ fields extracted, whether the document is a paper, a technical report,
+        or a country-policy document using one of these tools.
       </div>
     </div>
     <div style='background:rgba(128,128,128,0.12); padding:12px 14px; border-radius:6px;'>
@@ -346,17 +346,9 @@ st.markdown(f"""
       <div style='font-size:0.88rem; color:var(--text-color); text-transform:uppercase;
                   letter-spacing:0.05em; font-weight:700; margin:2px 0 6px 0;'><b>light</b></div>
       <div style='font-size:0.82rem; color:var(--text-color); line-height:1.4;'>
-        Techno-economic, GIS, mini-grid or simulation studies (HOMER, OnSSET, custom code).
-        Core fields only.
-      </div>
-    </div>
-    <div style='background:rgba(128,128,128,0.12); padding:12px 14px; border-radius:6px;'>
-      <div style='font-size:1.1rem; font-weight:700; color:var(--text-color);'>{_n_narr}</div>
-      <div style='font-size:0.88rem; color:var(--text-color); text-transform:uppercase;
-                  letter-spacing:0.05em; font-weight:700; margin:2px 0 6px 0;'><b>narrative</b></div>
-      <div style='font-size:0.82rem; color:var(--text-color); line-height:1.4;'>
-        Country-policy documents (NDCs, national plans, World Bank country reports).
-        Summary fields only.
+        Techno-economic, GIS, mini-grid, electrification, calculators (HOMER, OnSSET,
+        GACMO), and country-policy documents without a full planning model. Core
+        fields only.
       </div>
     </div>
   </div>

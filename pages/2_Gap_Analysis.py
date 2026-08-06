@@ -1,8 +1,8 @@
-"""Chapter 3 of the narrative: what do the models leave out?
+"""what do the models leave out?
 
 Coverage percentages are computed only over studies where each dimension was
 actually assessed (see utils.data.coverage) — blank cells mean "not assessed",
-not "no". This matters because many light/narrative extractions leave fields empty.
+not "no". This matters because many light extractions leave fields empty.
 """
 
 import sys
@@ -82,7 +82,6 @@ st.markdown(
 
 # CRITICAL: filter by extraction_level. Mixing planning models (MESSAGE/LEAP),
 # techno-economic studies (HOMER/GIS), and policy documents (NDCs) in the same
-# coverage statistics distorts the picture — light/narrative extractions leave
 # most methodological fields blank by design. Default to 'full' for this page.
 studies = extraction_level_filter(studies, default="full")
 n = len(studies)
@@ -90,7 +89,7 @@ n = len(studies)
 _lv = studies["extraction_level"].value_counts()
 st.caption(
     f"Based on {n} studies ({int(_lv.get('full',0))} full · {int(_lv.get('light',0))} light · "
-    f"{int(_lv.get('narrative',0))} narrative · {int(_lv.get('unspecified',0))} unspecified).")
+    f"{int(_lv.get('unspecified',0))} unspecified).")
 
 # ── Headline KPIs (replace several former pie charts) ────────────────────────────
 _inf = coverage(studies, "informal_economy", positive=("yes",))

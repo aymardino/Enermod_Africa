@@ -132,7 +132,7 @@ if len(filt) == 0:
 st.markdown("#### Technology coverage in the filtered set")
 
 # Technology fields are only systematically extracted at 'full' level —
-# including light/narrative studies would deflate the percentages.
+# including light studies would deflate the percentages.
 tech_base = filt[filt["extraction_level"] == "full"]
 st.caption(f"Computed on the {len(tech_base)} full-extraction studies in the filtered set "
            f"(of {len(filt)} shown below); technology fields are not extracted for lighter levels.")

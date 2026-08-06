@@ -36,11 +36,12 @@ with st.sidebar:
 
     extraction_levels = st.multiselect(
         "Extraction depth",
-        ["full", "light", "narrative"],
+        ["full", "light"],
         default=[],
         placeholder="All levels",
-        help="full = planning models (MESSAGE, OSeMOSYS) | light = techno-economic / GIS / "
-             "HOMER | narrative = country-policy documents (NDCs, World Bank reports)",
+        help="full = long-term planning models (MESSAGE, OSeMOSYS, TIMES, LEAP) | "
+             "light = techno-economic, GIS, mini-grid, calculators, and country-policy "
+             "documents without a full planning model (HOMER, OnSSET, GACMO, NDCs)",
     )
     
     scales = st.multiselect(
