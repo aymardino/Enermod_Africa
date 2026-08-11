@@ -33,7 +33,7 @@ with st.sidebar:
     st.markdown(
         "<p style='font-size:0.79rem; line-height:1.8;'>"
         "Score 0–10:<br>"
-        "• Institutional capacity: 0/1.5/3<br>"
+        "• Energy governance: 0/1.5/3<br>"
         "• Data availability: 0/1.5/3<br>"
         "• NDC commitment: +1<br>"
         "• Long-term strategy: +1<br>"
@@ -46,8 +46,8 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
     region_filter = st.multiselect("Region", sorted(countries["region"].unique()), default=[], placeholder="All regions", label_visibility="visible")
-    cap_filter = st.multiselect("Institutional capacity", ["yes","partial","no"], default=[], placeholder="All", label_visibility="visible")
-    dat_filter = st.multiselect("Data availability", ["good","moderate","poor"], default=[], placeholder="All", label_visibility="visible")
+    cap_filter = st.multiselect("Energy governance", ["strong","moderate","weak"], default=[], placeholder="All", label_visibility="visible")
+    dat_filter = st.multiselect("Data availability", ["good","limited","none"], default=[], placeholder="All", label_visibility="visible")
     st.markdown("---")
     st.markdown(
         "<p style='font-size:0.69rem; color:var(--text-color); font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2026</p>",
@@ -62,12 +62,32 @@ st.markdown(
     "that let modelling translate into policy. The score (0–10) is documented on the Methodology page.</p>",
     unsafe_allow_html=True)
 
+n_weak = int((countries["readiness_score"] < 4).sum())
+st.markdown(
+    f"<p style='font-family:Georgia,serif; font-style:italic; color:#4A5650; font-size:0.95rem; "
+    f"margin-top:-4px;'>{n_weak} countries score below 4/10 — readiness gaps concentrate less around "
+    f"electrification and more around governance frameworks and data transparency.</p>",
+    unsafe_allow_html=True)
+
 nc = len(countries)
-k1, k2, k3, k4 = st.columns(4)
-k1.metric("Avg readiness score", f"{countries['readiness_score'].mean():.1f}/10")
-k2.metric("Good data availability", int(countries["data_availability"].eq("good").sum()), delta=f"of {nc} countries", delta_color="off")
-k3.metric("Full institutional capacity", int(countries["has_institutional_capacity"].eq("yes").sum()), delta=f"of {nc} countries", delta_color="off")
-k4.metric("Have long-term strategy", int(countries["has_lts"].eq("yes").sum()), delta=f"of {nc} countries", delta_color="off")
+n_ranked = countries["readiness_score"].notna().sum()
+avg_score = countries["readiness_score"].mean()
+
+lead, rest = st.columns([1, 2])
+with lead:
+    st.markdown(
+        f"<div style='font-size:2.6rem; font-weight:700; color:#1E5631; line-height:1;'>"
+        f"{avg_score:.1f}<span style='font-size:1.3rem; color:#7A8B7F;'>/10</span></div>"
+        f"<div style='font-size:0.92rem; color:#4A5650; margin-top:4px;'>average readiness score "
+        f"across {n_ranked} ranked countries</div>",
+        unsafe_allow_html=True)
+with rest:
+    st.markdown(
+        f"<div style='font-size:0.96rem; color:#4A5650; line-height:2.1; padding-top:6px;'>"
+        f"<b>{int(countries['data_availability'].eq('good').sum())}</b> of {nc} countries have good data availability &nbsp;·&nbsp; "
+        f"<b>{int(countries['energy_governance'].eq('strong').sum())}</b> have strong energy governance &nbsp;·&nbsp; "
+        f"<b>{int(countries['has_lts'].eq('yes').sum())}</b> have a long-term strategy"
+        f"</div>", unsafe_allow_html=True)
 
 st.divider()
 
@@ -76,7 +96,7 @@ fig_map = px.choropleth(
     color_continuous_scale=["#B71C1C","#FDD835","#1B5E20"],
     hover_name="country_name",
     hover_data={"readiness_score":True,"electrification_rate":True,"data_availability":True,
-                "has_institutional_capacity":True,"iso3":False},
+                "energy_governance":True,"iso3":False},
     scope="africa", labels={"readiness_score":"Readiness"}, title="Readiness Score Map",
 )
 fig_map.update_geos(showframe=False, showcoastlines=True, coastlinecolor="#ccc",
@@ -131,7 +151,7 @@ with col_f2:
 with col_f3:
     sort_by = st.selectbox("Sort by", ["readiness_score","gap_score","nb_models_applied","electrification_rate"])
 with col_f4:
-    cap_sel = st.selectbox("Capacity", ["All","yes","partial","no"])
+    cap_sel = st.selectbox("Governance", ["All","strong","moderate","weak"])
 
 filtered = countries.copy()
 if search:
@@ -139,19 +159,19 @@ if search:
 if region_sel != "All":
     filtered = filtered[filtered["region"].str.capitalize() == region_sel]
 if cap_sel != "All":
-    filtered = filtered[filtered["has_institutional_capacity"] == cap_sel]
+    filtered = filtered[filtered["energy_governance"] == cap_sel]
 if region_filter:
     filtered = filtered[filtered["region"].isin(region_filter)]
 if cap_filter:
-    filtered = filtered[filtered["has_institutional_capacity"].isin(cap_filter)]
+    filtered = filtered[filtered["energy_governance"].isin(cap_filter)]
 if dat_filter:
     filtered = filtered[filtered["data_availability"].isin(dat_filter)]
 filtered = filtered.sort_values(sort_by, ascending=False)
 
 display = filtered[["country_name","region","power_pool","nb_models_applied",
                      "readiness_score","gap_score","electrification_rate",
-                     "data_availability","has_institutional_capacity","has_ndc","has_lts"]].copy()
-display.columns = ["Country","Region","Pool","Studies","Readiness","Gap","Electrification %","Data","Capacity","NDC","LTS"]
+                     "data_availability","energy_governance","has_ndc","has_lts"]].copy()
+display.columns = ["Country","Region","Pool","Studies","Readiness","Gap","Electrification %","Data","Governance","NDC","LTS"]
 display["Region"] = display["Region"].str.capitalize()
 
 st.dataframe(

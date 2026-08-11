@@ -127,7 +127,7 @@ def make_choropleth(df, color_col, color_scale, label, color_discrete_map=None):
         "country_name": True, "iso3": False,
         color_col: True, "nb_models_applied": True,
         "electrification_rate": True, "data_availability": True,
-        "has_institutional_capacity": True,
+        "energy_governance": True,
     }
     if color_discrete_map:
         fig = px.choropleth(

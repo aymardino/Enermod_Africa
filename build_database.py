@@ -66,9 +66,11 @@ def load(path):
 DDL = """
 CREATE TABLE countries (
     iso_code TEXT PRIMARY KEY, iso3 TEXT, country_name TEXT, power_pool TEXT,
-    region TEXT, language TEXT, nb_models_applied INTEGER, nb_models_national INTEGER,
-    has_institutional_capacity TEXT, data_availability TEXT,
-    electrification_rate REAL, has_ndc TEXT, has_lts TEXT
+    region TEXT, language TEXT, nb_models_applied INTEGER,
+    energy_governance TEXT, rise_governance_score REAL,
+    data_availability TEXT, data_transparency_score REAL,
+    electrification_rate REAL, electrification_year INTEGER,
+    has_ndc TEXT, has_lts TEXT
 );
 CREATE TABLE power_pools (
     pool_code TEXT PRIMARY KEY, pool_name TEXT, member_countries TEXT,

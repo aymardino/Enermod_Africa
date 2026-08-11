@@ -41,11 +41,10 @@ def db_cache_token() -> int:
         return 0
 
 
-# Niveaux d'extraction : full (complet) / light (partiel) / narrative (texte seul)
-EXTRACTION_LEVELS = ["full", "light", "narrative", "unspecified"]
+# Niveaux d'extraction : full (complet) / light (partiel)
+EXTRACTION_LEVELS = ["full", "light", "unspecified"]
 _EXTRACT_MAP = {"all": "full", "full": "full", "complete": "full",
-                "light": "light", "partial": "light",
-                "narrative": "narrative", "narrative_only": "narrative",
+                "light": "light", "partial": "light", "narrative": "light", "narrative_only": "light",
                 "": "unspecified", "nan": "unspecified", "none": "unspecified"}
 
 
@@ -79,8 +78,7 @@ def load_countries() -> pd.DataFrame:
     with _conn() as con:
         df = pd.read_sql("SELECT * FROM countries", con)
     df["electrification_rate"] = pd.to_numeric(df["electrification_rate"], errors="coerce").fillna(0.0)
-    for c in ("nb_models_applied", "nb_models_national"):
-        df[c] = pd.to_numeric(df[c], errors="coerce").fillna(0).astype(int)
+    df["nb_models_applied"] = pd.to_numeric(df["nb_models_applied"], errors="coerce").fillna(0).astype(int)
     if "iso3" not in df.columns or df["iso3"].isna().any() or (df["iso3"] == "").any():
         df["iso3"] = df["iso_code"].map(ISO2_TO_ISO3)
     return df
@@ -144,27 +142,77 @@ def get_country_studies(studies: pd.DataFrame, iso: str) -> pd.DataFrame:
 
 
 def compute_gap_score(row) -> float:
-    cap_map = {"yes": 2, "partial": 1, "no": 0}
-    dat_map = {"good": 2, "moderate": 1, "poor": 0}
+    """Gap score 0-100: higher = bigger modelling gap.
+
+    Components, each traceable to a cited source:
+      - feature coverage of the studies applied to that country          35%
+      - data availability (Ember, African Electricity Data
+        Transparency, Jan 2022)                                          30%
+      - energy governance (World Bank/ESMAP RISE 2023, proxy for
+        institutional capacity — see readiness docstring for caveat)     20%
+      - number of distinct models applied there                         15%
+
+    Countries with no RISE coverage (15/54) get the neutral mid-value for
+    governance, so they are neither rewarded nor penalised for missing data.
+    """
     feat = row.get("feature_ratio", 0)
-    cap = cap_map.get(str(row.get("has_institutional_capacity", "no")), 0)
-    dat = dat_map.get(str(row.get("data_availability", "poor")), 0)
+
+    dat_map = {"good": 2, "limited": 1, "none": 0}
+    dat = dat_map.get(str(row.get("data_availability", "") or "").strip(), 1)
+
+    gov_map = {"strong": 2, "moderate": 1, "weak": 0}
+    gov_raw = str(row.get("energy_governance", "") or "").strip()
+    gov = gov_map.get(gov_raw, 1)  # blank -> neutral
+
     n = min(row.get("nb_models_applied", 0), 10)
+
     return round(
-        (1 - feat) * 40
-        + (1 - cap / 2) * 30
-        + (1 - dat / 2) * 20
-        + (1 - n / 10) * 10
+        (1 - feat) * 35
+        + (1 - dat / 2) * 30
+        + (1 - gov / 2) * 20
+        + (1 - n / 10) * 15
     )
 
 
 def compute_readiness(row) -> float:
-    cap_pts = {"yes": 3, "partial": 1.5, "no": 0}.get(str(row.get("has_institutional_capacity", "no")), 0)
-    dat_pts = {"good": 3, "moderate": 1.5, "poor": 0}.get(str(row.get("data_availability", "poor")), 0)
+    """Readiness score 0-10, every component traceable to a public source.
+
+      - energy governance (World Bank/ESMAP RISE 2023)            0-3
+      - data availability (Ember transparency score, 2022)        0-3
+      - electrification rate (World Bank WDI, 2024)                0-2
+      - NDC submitted (UNFCCC registry)                            0-1
+      - Long-Term Strategy submitted (UNFCCC registry)             0-1
+
+    CAVEAT on energy governance: RISE measures the regulatory and policy
+    framework of the energy sector (existence of a regulator, planning
+    processes, incentive schemes) — not analytical or modelling capacity
+    directly. It is used here as the best available public proxy: a country
+    with an established regulatory framework is more likely to have
+    institutions capable of engaging with energy models. No dataset measures
+    modelling capacity directly; a corpus-based measure (e.g. share of
+    African-led, nationally-scoped studies per country) is a natural
+    complement once the full study extraction is done.
+
+    Returns None when energy_governance is not assessed (15/54 countries,
+    mostly small island states), so these countries show as "not ranked"
+    rather than scoring artificially low.
+    """
+    gov_raw = str(row.get("energy_governance", "") or "").strip()
+    if not gov_raw:
+        return None  # not assessed — excluded from rankings and averages
+
+    gov_pts = {"strong": 3, "moderate": 1.5, "weak": 0}.get(gov_raw, 0)
+    dat_pts = {"good": 3, "limited": 1.5, "none": 0}.get(
+        str(row.get("data_availability", "") or "").strip(), 0)
     ndc_pt = 1 if str(row.get("has_ndc", "no")) == "yes" else 0
     lts_pt = 1 if str(row.get("has_lts", "no")) == "yes" else 0
-    elec_pts = min(float(row.get("electrification_rate", 0)) / 100 * 2, 2)
-    return round(cap_pts + dat_pts + ndc_pt + lts_pt + elec_pts, 1)
+    try:
+        elec = float(row.get("electrification_rate") or 0)
+    except (TypeError, ValueError):
+        elec = 0
+    elec_pts = min(elec / 100 * 2, 2)
+
+    return round(gov_pts + dat_pts + ndc_pt + lts_pt + elec_pts, 1)
 
 
 def enrich_countries(countries: pd.DataFrame, studies: pd.DataFrame) -> pd.DataFrame:

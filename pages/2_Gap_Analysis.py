@@ -96,20 +96,26 @@ _inf = coverage(studies, "informal_economy", positive=("yes",))
 _loc = coverage(studies, "local_ownership", positive=("no",))
 _freq = coverage(studies, "frequency", positive=("ad_hoc", "occasional"))
 _sdg7 = coverage(studies, "sdg_7", positive=("yes",))
-k1, k2, k3, k4 = st.columns(4)
-k1.metric("Cover informal economy", f"{_inf['pct']}%",
-          delta=f"{_inf['positive']} of {_inf['assessed']} assessed", delta_color="off")
-k2.metric("No local ownership", f"{_loc['pct']}%",
-          delta=f"{_loc['positive']} of {_loc['assessed']} assessed", delta_color="inverse")
-k3.metric("Ad hoc / occasional use", f"{_freq['pct']}%",
-          delta="not embedded in routine planning", delta_color="inverse")
-k4.metric("Average gap score", f"{int(countries_view['gap_score'].mean())}/100",
-          delta="higher = more under-served", delta_color="inverse")
+lead, rest = st.columns([1, 2])
+with lead:
+    st.markdown(
+        f"<div style='font-size:2.6rem; font-weight:700; color:#B71C1C; line-height:1;'>"
+        f"{_freq['pct']}%</div>"
+        f"<div style='font-size:0.92rem; color:#4A5650; margin-top:4px;'>of studies use models "
+        f"<i>ad hoc</i> rather than as part of routine planning</div>",
+        unsafe_allow_html=True)
+with rest:
+    st.markdown(
+        f"<div style='font-size:0.96rem; color:#4A5650; line-height:2.1; padding-top:6px;'>"
+        f"<b>{_inf['pct']}%</b> of studies cover the informal economy ({_inf['positive']} of {_inf['assessed']} assessed) &nbsp;·&nbsp; "
+        f"<b>{_loc['pct']}%</b> have no local ownership ({_loc['positive']} of {_loc['assessed']} assessed) &nbsp;·&nbsp; "
+        f"average gap score is <b>{int(countries_view['gap_score'].mean())}/100</b>"
+        f"</div>", unsafe_allow_html=True)
 
 st.divider()
 
 # ── Chart 1 of 4 : African-specific feature coverage ─────────────────────────────
-st.subheader("1 · African-specific features are rarely modelled")
+st.subheader("African-specific features are rarely modelled")
 st.caption("Four features critical to realistic African energy modelling,  each assessed only where the study reported on it.")
 features = [
     ("Informal economy", coverage(studies, "informal_economy")),
@@ -136,7 +142,7 @@ st.plotly_chart(fig_feat, use_container_width=True)
 st.divider()
 
 # ── Chart 2 of 4 : who develops the models ───────────────────────────────────────
-st.subheader("2 · Most studies are not African-led")
+st.subheader("Most studies are not African-led")
 st.caption("Origin inferred from author affiliations. A study is 'Mixed' when it combines African and non-African institutions.")
 origins = studies["developer_origin"].map(classify_origin).dropna()
 dev_df = origins.value_counts().reset_index()
@@ -157,7 +163,7 @@ st.subheader("3 · Where the gaps concentrate")
 st.caption("Gap score combines feature coverage, institutional capacity, data availability and model density. See Methodology.")
 fig_map = px.choropleth(
     countries_view, locations="iso3", color="gap_score",
-    color_continuous_scale=["#1B5E20", "#FDD835", "#B71C1C"],
+    color_continuous_scale=["#EAF3EC", "#E8A24A", "#B71C1C"],
     hover_name="country_name",
     hover_data={"gap_score": True, "nb_models_applied": True, "iso3": False},
     scope="africa", labels={"gap_score": "Gap score"})
@@ -170,7 +176,7 @@ st.plotly_chart(fig_map, use_container_width=True)
 st.divider()
 
 # ── Chart 4 of 4 : do models account for financing? (AISESA R5) ──────────────────
-st.subheader("4 · Do the models account for how projects are financed?")
+st.subheader("Do the models account for how projects are financed?")
 st.caption("Capital cost and financing assumptions shape every investment result, yet are often left implicit or uniform.")
 
 # cost_of_capital holds actual rates (e.g. 0.1 = 10%), "not_stated", or free text — not yes/no.
@@ -194,15 +200,25 @@ _fin = coverage(studies, "financing_modelling", positive=("yes",))
 _mechs = studies["financing_mechanism"].astype(str).str.strip()
 _mechs = _mechs[~_mechs.str.lower().isin(["", "nan", "none", "no"])]
 
-fc1, fc2, fc3 = st.columns(3)
 _mode_rate = _rates.mode().iloc[0] if len(_rates) else 0
 _mode_share = round((_rates == _mode_rate).sum() / len(_rates) * 100) if len(_rates) else 0
-fc1.metric("Most common discount rate", f"{_mode_rate:.0f}%",
-           delta=f"used by {_mode_share}% of studies stating one", delta_color="off")
-fc2.metric("Model financing explicitly", f"{_fin['pct']}%",
-           delta=f"{_fin['positive']} of {_fin['assessed']} assessed", delta_color="off")
-fc3.metric("Name a financing mechanism", f"{len(_mechs)}",
-           delta=f"· {_not_stated} studies leave the rate unstated", delta_color="off")
+
+lead, rest = st.columns([1, 2])
+with lead:
+    st.markdown(
+        f"<div style='font-size:2.6rem; font-weight:700; color:#5E35B1; line-height:1;'>"
+        f"{_mode_rate:.0f}%</div>"
+        f"<div style='font-size:0.82rem; color:#4A5650; margin-top:4px;'>the most common discount "
+        f"rate — used by {_mode_share}% of studies that state one</div>",
+        unsafe_allow_html=True)
+with rest:
+    st.markdown(
+        f"<div style='font-size:0.86rem; color:#4A5650; line-height:2.1; padding-top:6px;'>"
+        f"Only <b>{_fin['pct']}%</b> of studies model financing explicitly "
+        f"({_fin['positive']} of {_fin['assessed']} assessed) &nbsp;·&nbsp; "
+        f"<b>{len(_mechs)}</b> name a specific financing mechanism &nbsp;·&nbsp; "
+        f"<b>{_not_stated}</b> studies leave the rate unstated entirely"
+        f"</div>", unsafe_allow_html=True)
 
 if len(_rates) > 1:
     import pandas as _pd
@@ -239,7 +255,7 @@ st.divider()
 st.subheader("Highest-gap countries")
 top_gap = countries_view.nlargest(15, "gap_score")[
     ["country_name", "region", "power_pool", "nb_models_applied",
-     "gap_score", "data_availability", "has_institutional_capacity", "electrification_rate"]].copy()
+     "gap_score", "data_availability", "energy_governance", "electrification_rate"]].copy()
 top_gap.columns = ["Country", "Region", "Power pool", "Studies", "Gap score",
                    "Data", "Capacity", "Electrification (%)"]
 top_gap["Region"] = top_gap["Region"].str.capitalize()

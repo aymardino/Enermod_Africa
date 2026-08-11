@@ -11,44 +11,25 @@ from utils.data import (load_countries, load_studies, load_tools,
                         enrich_countries, coverage, ISO2_TO_ISO3, db_cache_token)
 from utils.ui import SIDEBAR_CSS, beta_banner, GREEN, render_logo, inventory_breakdown
 import pandas as pd
+import pycountry
 
-# ISO-2 -> ISO-3 for NON-African author origins (African codes come from
-# ISO2_TO_ISO3). Add any new origin country here if it ever shows up unmapped.
-_WORLD_ISO3 = {
-    "US": "USA", "CA": "CAN", "MX": "MEX", "BR": "BRA", "AR": "ARG", "CL": "CHL",
-    "CO": "COL", "PE": "PER", "GB": "GBR", "IE": "IRL", "FR": "FRA", "DE": "DEU",
-    "IT": "ITA", "ES": "ESP", "PT": "PRT", "NL": "NLD", "BE": "BEL", "LU": "LUX",
-    "CH": "CHE", "AT": "AUT", "SE": "SWE", "NO": "NOR", "DK": "DNK", "FI": "FIN",
-    "IS": "ISL", "PL": "POL", "CZ": "CZE", "SK": "SVK", "HU": "HUN", "GR": "GRC",
-    "RO": "ROU", "BG": "BGR", "HR": "HRV", "RS": "SRB", "EE": "EST", "LV": "LVA",
-    "LT": "LTU", "RU": "RUS", "UA": "UKR", "TR": "TUR", "IL": "ISR", "SA": "SAU",
-    "AE": "ARE", "QA": "QAT", "IR": "IRN", "IN": "IND", "PK": "PAK", "BD": "BGD",
-    "CN": "CHN", "JP": "JPN", "KR": "KOR", "TW": "TWN", "HK": "HKG", "SG": "SGP",
-    "MY": "MYS", "ID": "IDN", "TH": "THA", "VN": "VNM", "PH": "PHL", "AU": "AUS",
-    "NZ": "NZL", "RE": "REU",
-}
-# African entries win on any overlap.
+# ISO-2 -> ISO-3 and names for ALL countries in the world.
+# Uses pycountry (see requirements.txt) which contains the official ISO 3166 list
+# of 249 countries, kept in sync with the standard.
+def _build_world_maps():
+    iso3, names = {}, {}
+    for c in pycountry.countries:
+        iso2 = c.alpha_2
+        iso3[iso2] = c.alpha_3
+        # Use the common short name when available (e.g. "Iran" instead of
+        # "Iran, Islamic Republic of"); fall back to the official name otherwise.
+        names[iso2] = getattr(c, "common_name", c.name)
+    return iso3, names
+
+_WORLD_ISO3, _WORLD_NAMES = _build_world_maps()
+
+# African entries win on any overlap (already defined above).
 ISO2_TO_ISO3_WORLD = {**_WORLD_ISO3, **ISO2_TO_ISO3}
-
-# Names for non-African origins (African names come from the countries table).
-_WORLD_NAMES = {
-    "US": "United States", "CA": "Canada", "MX": "Mexico", "BR": "Brazil",
-    "AR": "Argentina", "CL": "Chile", "CO": "Colombia", "PE": "Peru",
-    "GB": "United Kingdom", "IE": "Ireland", "FR": "France", "DE": "Germany",
-    "IT": "Italy", "ES": "Spain", "PT": "Portugal", "NL": "Netherlands",
-    "BE": "Belgium", "LU": "Luxembourg", "CH": "Switzerland", "AT": "Austria",
-    "SE": "Sweden", "NO": "Norway", "DK": "Denmark", "FI": "Finland",
-    "IS": "Iceland", "PL": "Poland", "CZ": "Czechia", "SK": "Slovakia",
-    "HU": "Hungary", "GR": "Greece", "RO": "Romania", "BG": "Bulgaria",
-    "HR": "Croatia", "RS": "Serbia", "EE": "Estonia", "LV": "Latvia",
-    "LT": "Lithuania", "RU": "Russia", "UA": "Ukraine", "TR": "Turkey",
-    "IL": "Israel", "SA": "Saudi Arabia", "AE": "United Arab Emirates",
-    "QA": "Qatar", "IR": "Iran", "IN": "India", "PK": "Pakistan",
-    "BD": "Bangladesh", "CN": "China", "JP": "Japan", "KR": "South Korea",
-    "TW": "Taiwan", "HK": "Hong Kong", "SG": "Singapore", "MY": "Malaysia",
-    "ID": "Indonesia", "TH": "Thailand", "VN": "Vietnam", "PH": "Philippines",
-    "AU": "Australia", "NZ": "New Zealand", "RE": "Réunion",
-}
 
 # Colours for the two origin groups.
 _AFR_COLOR = "#2F7D4F"       # African-based authors (brand green)
@@ -230,6 +211,15 @@ with st.sidebar:
         <li>📖 <b>Methodology</b> — how scores are built</li>
         </ul>""", unsafe_allow_html=True)
     st.markdown("---")
+    import os, datetime as dt
+    _db_path = "data/enermod.db"
+    if os.path.exists(_db_path):
+        _mtime = dt.datetime.fromtimestamp(os.path.getmtime(_db_path))
+        st.markdown(
+            f"<p style='font-size:0.68rem; color:var(--text-color); opacity:0.6;'>"
+            f"DB updated: {_mtime.strftime('%Y-%m-%d %H:%M')}</p>",
+            unsafe_allow_html=True)
+        
     st.markdown(
         "<p style='font-size:0.69rem; color:var(--text-color); font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2026</p>",
         unsafe_allow_html=True)
