@@ -134,8 +134,8 @@ st.markdown("#### Technology coverage in the filtered set")
 # Technology fields are only systematically extracted at 'full' level —
 # including light studies would deflate the percentages.
 tech_base = filt[filt["extraction_level"] == "full"]
-st.caption(f"Computed on the {len(tech_base)} full-extraction studies in the filtered set "
-           f"(of {len(filt)} shown below); technology fields are not extracted for lighter levels.")
+st.caption(f"Computed on the {len(tech_base)} whole-system studies in the filtered set "
+           f"(of {len(filt)} shown below); technology fields are not extracted for focused studies.")
 
 tech_avail_full = [t for t in TECH_COLS if t in tech_base.columns]
 if tech_avail_full and len(tech_base) > 0:
@@ -150,7 +150,7 @@ if tech_avail_full and len(tech_base) > 0:
                            xaxis=dict(range=[0, tech_df["Coverage (%)"].max() * 1.15]))
     st.plotly_chart(fig_tech, use_container_width=True)
 else:
-    st.info("No full-extraction studies in the current selection — relax the filters to see technology coverage.")
+    st.info("No whole-system studies in the current selection — relax the filters to see technology coverage.")
 
 st.divider()
 

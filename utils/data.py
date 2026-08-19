@@ -3,7 +3,7 @@
 Source of truth: data/enermod.db (SQLite), regenerated from Excel via build_database.py.
 Backward-compatible with the existing pages: rebuilds the legacy `countries` and
 `power_pool` text columns from the junction tables, and aliases renamed columns
-(study_id->id, frequency_of_use->frequency, author_origin->developer_origin).
+(study_id->id, author_origin->developer_origin).
 """
 
 import re
@@ -107,8 +107,6 @@ def load_studies() -> pd.DataFrame:
         df["extraction_level"] = df["extraction_level"].map(_norm_level)
     else:
         df["extraction_level"] = "unspecified"
-    if "frequency_of_use" in df.columns:
-        df["frequency"] = df["frequency_of_use"]
     if "author_origin" in df.columns:
         df["developer_origin"] = df["author_origin"]
     if "link_doi" in df.columns:

@@ -92,7 +92,7 @@ CREATE TABLE studies (
     method TEXT, mathematical_approach TEXT, hydro TEXT, solar TEXT, wind TEXT,
     biomass TEXT, nuclear TEXT, geothermal TEXT, fossil TEXT, h2 TEXT, coal TEXT,
     other_technologies TEXT, sector TEXT, open_source TEXT, data_requirements TEXT,
-    frequency_of_use TEXT, sdg_7 TEXT, sdg_13 TEXT, ndc_mention TEXT, agenda_2063 TEXT,
+    sdg_7 TEXT, sdg_13 TEXT, ndc_mention TEXT, agenda_2063 TEXT,
     aisesa_theme TEXT, informal_economy TEXT, biomass_charcoal TEXT, clean_cooking TEXT,
     power_reliability TEXT, urbanization TEXT, strengths TEXT, weaknesses TEXT,
     authors_affiliation TEXT, author_origin TEXT, local_ownership TEXT,

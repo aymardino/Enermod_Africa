@@ -34,14 +34,18 @@ with st.sidebar:
     )
     year_range = st.slider("Study year range", 2000, 2026, (2000, 2026))
 
+    from utils.ui import level_label
     extraction_levels = st.multiselect(
-        "Extraction depth",
+        "Model scope",
         ["full", "light"],
         default=[],
-        placeholder="All levels",
-        help="full = long-term planning models (MESSAGE, OSeMOSYS, TIMES, LEAP) | "
-             "light = techno-economic, GIS, mini-grid, calculators, and country-policy "
-             "documents without a full planning model (HOMER, OnSSET, GACMO, NDCs)",
+        format_func=level_label,
+        placeholder="All models",
+        help="Whole-system = models representing a complete energy system "
+             "(MESSAGE, OSeMOSYS, TIMES, LEAP, PLEXOS) | "
+             "Focused = models addressing a delimited question — site sizing, "
+             "electricity access, spatial analysis, scenario accounting "
+             "(HOMER, OnSSET, GIS, calculators)",
     )
     
     scales = st.multiselect(
@@ -237,7 +241,7 @@ if selected:
 
     if not c_studies.empty:
         st.markdown(f"**{len(c_studies)} studies** cover {selected} in this period:")
-        dcols = [c for c in ["model_name","year","scale","approach","method","open_source","frequency","informal_economy","local_ownership","sdg_7","sdg_13"] if c in c_studies.columns]
+        dcols = [c for c in ["model_name","year","scale","approach","method","open_source","informal_economy","local_ownership","sdg_7","sdg_13"] if c in c_studies.columns]
         st.dataframe(c_studies[dcols].reset_index(drop=True), use_container_width=True, hide_index=True)
     else:
         st.info("No studies match the current filters for this country.")

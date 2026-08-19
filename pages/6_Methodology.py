@@ -64,30 +64,30 @@ st.markdown(
 st.divider()
 
 # ── Extraction levels ────────────────────────────────────────────────────────────
-st.header("Extraction levels")
+st.header("Model scope")
 st.markdown(
-    "Each study is classified at one of two extraction depths, based on the **type of "
-    "model** used. The lighter level intentionally leaves methodological fields blank "
-    "when they are not applicable — this is recorded, not hidden.")
+    "Studies are grouped by the **scope of the model** they use. This is a property of "
+    "the study, not of how it was processed: focused models leave methodological fields "
+    "empty because those fields do not apply to them.")
 st.markdown(
-    "- **Full** — long-term planning models (MESSAGE, OSeMOSYS, TIMES, LEAP, PLEXOS, "
-    "Balmorel). Multi-decade horizon, full energy systems. All 50+ structured fields "
-    "extracted. This applies to peer-reviewed articles, technical reports, AND "
-    "country-policy documents that use one of these tools (e.g. a NDC using LEAP).\n"
-    "- **Light** — everything else: techno-economic studies, GIS-based analyses, "
-    "electrification / mini-grid studies, calculators (HOMER, OnSSET, GACMO, CERC), "
-    "and country-policy documents without a long-term planning model. Core fields "
-    "extracted (~34 fields), methodological fields specific to system optimisation "
-    "are omitted.\n"
-    "- **Unspecified** — extraction depth not yet recorded.\n\n"
-    "Whether a document is grey literature (NDC, WB report) or peer-reviewed is "
-    "captured by the separate `grey_literature` field, not by the extraction level.")
-callout("⚠ <b>Mixing levels in statistics can mislead.</b> For example, "
-        "'Top tools by usage' computed across both levels will dilute MESSAGE/OSeMOSYS "
-        "(typical of full) with HOMER (typical of light). Most analytical pages let "
-        "you filter by level — use it to keep comparisons honest.")
-st.info(f"Current inventory ({n} studies): {int(lv.get('full',0))} full · "
-        f"{int(lv.get('light',0))} light · {int(lv.get('unspecified',0))} unspecified.")
+    "- **Whole-system** — models that represent a complete energy system and its internal "
+    "trade-offs across sectors (MESSAGE, OSeMOSYS, TIMES, LEAP, PLEXOS, Balmorel). "
+    "All 50+ structured fields are relevant and extracted. This applies whether the "
+    "document is a peer-reviewed article, a technical report, or a country-policy "
+    "document using one of these tools (e.g. a NDC built with LEAP).\n"
+    "- **Focused** — models that address a delimited question: site sizing, electricity "
+    "access, spatial analysis, scenario accounting (HOMER, OnSSET, RETScreen, GIS "
+    "analyses, calculators such as GACMO or CERC). About 34 core fields are relevant; "
+    "fields specific to system-wide optimisation are not applicable and stay empty.\n"
+    "- **Unspecified** — model scope not yet recorded.\n\n"
+    "Whether a document is grey literature (NDC, World Bank report) or peer-reviewed is "
+    "captured by the separate `grey_literature` field, independently of model scope.")
+callout("⚠ <b>Mixing scopes in statistics can mislead.</b> For example, "
+        "'Top tools by usage' computed across both groups will dilute MESSAGE/OSeMOSYS "
+        "(whole-system) with HOMER (focused). Most analytical pages let you filter — "
+        "use it to keep comparisons honest.")
+st.info(f"Current inventory ({n} studies): {int(lv.get('full',0))} whole-system · "
+        f"{int(lv.get('light',0))} focused · {int(lv.get('unspecified',0))} unspecified.")
 st.divider()
 
 # ── Empty-cell rule ────────────────────────────────────────────────────────────

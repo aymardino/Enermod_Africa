@@ -116,10 +116,22 @@ def beta_banner() -> str:
 
 # ── Extraction-level filter (used on Gap, Readiness, Browse, Map) ────────────────
 EXTRACTION_LEVELS = ["full", "light"]
-LEVEL_DESCRIPTIONS = {
-    "full": "Long-term planning models (MESSAGE, OSeMOSYS, TIMES, LEAP)",
-    "light": "Techno-economic / GIS / electrification studies (HOMER, OnSSET, custom)",
+LEVEL_LABELS = {
+    "full": "Whole-system",
+    "light": "Focused",
+    "unspecified": "Unspecified",
 }
+LEVEL_DESCRIPTIONS = {
+    "full": "Models that represent a complete energy system and its internal "
+            "trade-offs (MESSAGE, OSeMOSYS, TIMES, LEAP, PLEXOS, Balmorel)",
+    "light": "Models that address a delimited question — site sizing, electricity "
+             "access, spatial analysis, scenario accounting (HOMER, OnSSET, GIS, calculators)",
+}
+
+
+def level_label(value: str) -> str:
+    """Public-facing name for an internal extraction_level value."""
+    return LEVEL_LABELS.get(str(value).strip().lower(), str(value))
 
 
 def extraction_level_filter(df, default="full", key_suffix=""):
@@ -130,30 +142,32 @@ def extraction_level_filter(df, default="full", key_suffix=""):
 
     def fmt(opt):
         if opt == "all":
-            return f"All levels ({total} studies)"
+            return f"All models ({total} studies)"
         n = counts.get(opt, 0)
-        return f"{opt} — {n} studies"
+        return f"{level_label(opt)} — {n} studies"
 
     picked = st.selectbox(
-        "Filter by extraction level",
+        "Filter by model scope",
         options,
         index=options.index(default) if default in options else 0,
         format_func=fmt,
         key=f"el_filter{key_suffix}",
         help=(
-            "Studies are categorised by the type of model used. "
-            "**Full** = long-term planning models (MESSAGE, OSeMOSYS, TIMES, LEAP, PLEXOS). "
-            "**Light** = everything else (techno-economic, GIS, calculators, and policy documents "
-            "without a planning model). Mixing levels in statistics can be misleading."
+            "Studies are grouped by the scope of the model they use. "
+            "**Whole-system** models represent a complete energy system and its "
+            "internal trade-offs. **Focused** models address a delimited question — "
+            "site sizing, electricity access, spatial analysis or scenario accounting. "
+            "Focused models leave methodological fields empty because those fields "
+            "do not apply to them, not because less effort went into extraction."
         ),
     )
     if picked != "all":
-        st.caption(f"Showing {counts.get(picked, 0)} **{picked}** studies — "
+        st.caption(f"Showing {counts.get(picked, 0)} **{level_label(picked)}** studies — "
                    f"{LEVEL_DESCRIPTIONS[picked]}")
         return df[df["extraction_level"] == picked].copy()
     else:
-        st.caption(f"Showing all {total} studies across levels. "
-                   "Statistics aggregate full and light studies together.")
+        st.caption(f"Showing all {total} studies. Statistics aggregate whole-system "
+                   "and focused models together, which can be misleading.")
         return df.copy()
 
 
@@ -165,7 +179,7 @@ def inventory_breakdown(df):
     for lvl in EXTRACTION_LEVELS:
         n = counts.get(lvl, 0)
         if n:
-            parts.append(f"**{n}** {lvl}")
+            parts.append(f"**{n}** {level_label(lvl).lower()}")
     unclassified = counts.get("(unclassified)", 0)
     if unclassified:
         parts.append(f"**{unclassified}** unclassified")

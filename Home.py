@@ -145,7 +145,6 @@ def get_stats(db_token: int):
     nonafr = round((origins == "Non-African").sum() / len(origins) * 100) if len(origins) else 0
     african_led = round((origins == "African-led").sum() / len(origins) * 100) if len(origins) else 0
 
-    adhoc = coverage(studies, "frequency", positive=("ad_hoc", "occasional"))["pct"]
     informal = coverage(studies, "informal_economy", positive=("yes",))["pct"]
     opensrc = coverage(studies, "open_source", positive=("open", "mixed"))["pct"]
 
@@ -173,7 +172,7 @@ def get_stats(db_token: int):
     origin_map = pd.DataFrame(_rows)
 
     return dict(n=n, n_tools=len(tools), n_countries=len(countries), covered=covered,
-                y0=y0, y1=y1, nonafr=nonafr, african_led=african_led, adhoc=adhoc,
+                y0=y0, y1=y1, nonafr=nonafr, african_led=african_led,
                 informal=informal, opensrc=opensrc, by_year=by_year,
                 origin_map=origin_map)
 
@@ -246,7 +245,7 @@ applied across African countries</b> and drawing on
 <i>{S['n_tools']} distinct modelling tools</i>.</p>
 
 <p>What emerges from the inventory is that <i>{S['nonafr']}%</i> of studies are led by
-institutions based outside the continent. Only <i>{S['african_led']}%</i> are African-led and <i>{S['adhoc']}%</i> are produced on an <i>ad hoc</i> or occasional basis rather than embedded in routine national planning. African-specific realities remain under-represented: just
+institutions based outside the continent, and only <i>{S['african_led']}%</i> are African-led. African-specific realities remain under-represented: just
 <i>{S['informal']}%</i> of assessed studies explicitly model the informal economy. Yet
 <i>{S['opensrc']}%</i> already rely on open or mixed-licence tools, an opening for locally-owned,
 reproducible modelling capacity.</p>
@@ -316,15 +315,16 @@ st.markdown(f"""
     <b>What's in this inventory</b>
   </p>
   <p style='margin:0 0 14px 0; font-size:0.88rem; color:var(--text-color); line-height:1.4;'>
-    Studies are classified by <b>extraction depth</b>: how detailed the data we extracted is.
-    This depends on the type of model used. Statistics computed on a mix of these two
-    categories can be misleading, so most analytical pages let you filter by level.
+    Studies are grouped by the <b>scope of the model</b> they use. Whole-system models
+    represent a complete energy system; focused models address a delimited question.
+    Statistics computed on a mix of these two categories can be misleading, so most
+    analytical pages let you filter.
   </p>
   <div style='display:grid; grid-template-columns:repeat(2, 1fr); gap:14px;'>
     <div style='background:rgba(128,128,128,0.12); padding:12px 14px; border-radius:6px;'>
       <div style='font-size:1.1rem; font-weight:700; color:var(--text-color);'>{_n_full}</div>
       <div style='font-size:0.88rem; color:var(--text-color); text-transform:uppercase;
-                  letter-spacing:0.05em; font-weight:700; margin:2px 0 6px 0;'><b>full</b></div>
+                  letter-spacing:0.05em; font-weight:700; margin:2px 0 6px 0;'><b>whole-system</b></div>
       <div style='font-size:0.82rem; color:var(--text-color); line-height:1.4;'>
         Long-term planning models (MESSAGE, OSeMOSYS, TIMES, LEAP, PLEXOS, Balmorel).
         All 50+ fields extracted, whether the document is a paper, a technical report,
@@ -334,7 +334,7 @@ st.markdown(f"""
     <div style='background:rgba(128,128,128,0.12); padding:12px 14px; border-radius:6px;'>
       <div style='font-size:1.1rem; font-weight:700; color:var(--text-color);'>{_n_light}</div>
       <div style='font-size:0.88rem; color:var(--text-color); text-transform:uppercase;
-                  letter-spacing:0.05em; font-weight:700; margin:2px 0 6px 0;'><b>light</b></div>
+                  letter-spacing:0.05em; font-weight:700; margin:2px 0 6px 0;'><b>focused</b></div>
       <div style='font-size:0.82rem; color:var(--text-color); line-height:1.4;'>
         Techno-economic, GIS, mini-grid, electrification, calculators (HOMER, OnSSET,
         GACMO), and country-policy documents without a full planning model. Core

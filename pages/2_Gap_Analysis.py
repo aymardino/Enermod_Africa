@@ -86,29 +86,24 @@ st.markdown(
 studies = extraction_level_filter(studies, default="full")
 n = len(studies)
 
-_lv = studies["extraction_level"].value_counts()
-st.caption(
-    f"Based on {n} studies ({int(_lv.get('full',0))} full · {int(_lv.get('light',0))} light · "
-    f"{int(_lv.get('unspecified',0))} unspecified).")
-
 # ── Headline KPIs (replace several former pie charts) ────────────────────────────
 _inf = coverage(studies, "informal_economy", positive=("yes",))
 _loc = coverage(studies, "local_ownership", positive=("no",))
-_freq = coverage(studies, "frequency", positive=("ad_hoc", "occasional"))
+_open = coverage(studies, "open_source", positive=("open", "mixed"))
 _sdg7 = coverage(studies, "sdg_7", positive=("yes",))
 lead, rest = st.columns([1, 2])
 with lead:
     st.markdown(
         f"<div style='font-size:2.6rem; font-weight:700; color:#B71C1C; line-height:1;'>"
-        f"{_freq['pct']}%</div>"
-        f"<div style='font-size:0.92rem; color:#4A5650; margin-top:4px;'>of studies use models "
-        f"<i>ad hoc</i> rather than as part of routine planning</div>",
+        f"{_loc['pct']}%</div>"
+        f"<div style='font-size:0.82rem; color:#4A5650; margin-top:4px;'>of assessed studies "
+        f"have no African institution leading or co-leading the work</div>",
         unsafe_allow_html=True)
 with rest:
     st.markdown(
         f"<div style='font-size:0.96rem; color:#4A5650; line-height:2.1; padding-top:6px;'>"
         f"<b>{_inf['pct']}%</b> of studies cover the informal economy ({_inf['positive']} of {_inf['assessed']} assessed) &nbsp;·&nbsp; "
-        f"<b>{_loc['pct']}%</b> have no local ownership ({_loc['positive']} of {_loc['assessed']} assessed) &nbsp;·&nbsp; "
+        f"<b>{_open['pct']}%</b> use open or mixed-licence tools &nbsp;·&nbsp; "
         f"average gap score is <b>{int(countries_view['gap_score'].mean())}/100</b>"
         f"</div>", unsafe_allow_html=True)
 
@@ -266,5 +261,5 @@ st.dataframe(
         "Electrification (%)": st.column_config.NumberColumn(format="%.0f%%"),
     })
 
-st.caption("Secondary breakdowns (licence, scale, SDG, usage frequency) are available as filters "
+st.caption("Secondary breakdowns (licence, scale, SDG) are available as filters "
            "on the Browse Studies page.")
