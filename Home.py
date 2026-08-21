@@ -144,8 +144,12 @@ def get_stats(db_token: int):
     origins = studies["developer_origin"].map(_origin).dropna()
     nonafr = round((origins == "Non-African").sum() / len(origins) * 100) if len(origins) else 0
     african_led = round((origins == "African-led").sum() / len(origins) * 100) if len(origins) else 0
+    mixed_origin = round((origins == "Mixed").sum() / len(origins) * 100) if len(origins) else 0
+    origins_full = studies.loc[studies["extraction_level"]=="full", "developer_origin"].map(_origin).dropna()
+    origins_light = studies.loc[studies["extraction_level"]=="light", "developer_origin"].map(_origin).dropna()
+    afr_led_full = round((origins_full=="African-led").sum()/len(origins_full)*100) if len(origins_full) else 0
+    afr_led_light = round((origins_light=="African-led").sum()/len(origins_light)*100) if len(origins_light) else 0
 
-    informal = coverage(studies, "informal_economy", positive=("yes",))["pct"]
     opensrc = coverage(studies, "open_source", positive=("open", "mixed"))["pct"]
 
     by_year = years.astype(int).value_counts().sort_index().reset_index()
@@ -172,9 +176,9 @@ def get_stats(db_token: int):
     origin_map = pd.DataFrame(_rows)
 
     return dict(n=n, n_tools=len(tools), n_countries=len(countries), covered=covered,
-                y0=y0, y1=y1, nonafr=nonafr, african_led=african_led,
-                informal=informal, opensrc=opensrc, by_year=by_year,
-                origin_map=origin_map)
+                y0=y0, y1=y1, nonafr=nonafr, african_led=african_led, mixed=mixed_origin,
+                afr_led_full=afr_led_full, afr_led_light=afr_led_light, opensrc=opensrc, 
+                by_year=by_year, origin_map=origin_map)
 
 
 S = get_stats(db_cache_token())
@@ -236,25 +240,23 @@ st.markdown(
 
 # ── Narrative framing (live figures) ─────────────────────────────────────────────
 st.markdown(f"""
-<div style='font-family:Georgia,serif; font-size:1rem; line-height:1.7; color:var(--text-color); max-width:1200px; margin:0; text-align:justify; hyphens:auto;'>
-
-<p>The <i>African Energy Modelling Observatory</i> is a living synthesis of how energy systems
-across the continent are represented in quantitative models. It currently documents
-<i>{S['n']} modelling studies</i> published between <i>{S['y0']} and {S['y1']}</i>,
-applied across African countries</b> and drawing on
-<i>{S['n_tools']} distinct modelling tools</i>.</p>
-
-<p>What emerges from the inventory is that <i>{S['nonafr']}%</i> of studies are led by
-institutions based outside the continent, and only <i>{S['african_led']}%</i> are African-led. African-specific realities remain under-represented: just
-<i>{S['informal']}%</i> of assessed studies explicitly model the informal economy. Yet
-<i>{S['opensrc']}%</i> already rely on open or mixed-licence tools, an opening for locally-owned,
-reproducible modelling capacity.</p>
-
-<p>This observatory is intended less as a catalogue than as a <i>starting point for dialogue</i>: to make visible where modelling effort concentrates, where it is absent, and how the community
-might close those gaps. Every figure on this platform updates automatically as new studies are added.</p>
-
+<div style='font-family:Georgia,serif; font-size:1.05rem; line-height:1.7; color:var(--text-color);
+            max-width:900px; margin:0 0 8px 0;'>
+<p>{S['n']} modelling studies, {S['y0']}–{S['y1']}, {S['n_tools']} distinct tools, all 54 African
+countries</p>
 </div>
 """, unsafe_allow_html=True)
+
+m1, m2, m3, m4, m5 = st.columns(5)
+m1.metric("Studies", S["n"])
+m2.metric("Countries covered", f"{S['covered']}/{S['n_countries']}")
+m3.metric("Energy modelling tools", S["n_tools"])
+m4.metric("African-led", f"{S['african_led']}%",
+          help=f"{S['afr_led_full']}% among whole-system models, "
+               f"{S['afr_led_light']}% among focused models")
+m5.metric("Open / mixed licence", f"{S['opensrc']}%")
+st.caption("Every figure updates automatically as new studies are added. "
+           "Full methodology and sources on the Methodology page.")
 
 st.markdown(
     "<div style='font-family:Georgia,serif; font-weight:600; font-size:0.98rem; "
@@ -265,17 +267,6 @@ st.caption("Author institutions by country, counted once per study — "
             "most modelling effort is still based outside Africa.")
 
 st.divider()
-
-# ── Live key figures ─────────────────────────────────────────────────────────────
-st.markdown("<h3 style='font-family:Georgia,serif;'>The inventory at a glance</h3>", unsafe_allow_html=True)
-m1, m2, m3, m4, m5 = st.columns(5)
-m1.metric("Studies", S["n"])
-m2.metric("Countries covered", f"{S['covered']}/{S['n_countries']}")
-m3.metric("Modelling tools", S["n_tools"])
-m4.metric("Non-African-led", f"{S['nonafr']}%")
-m5.metric("Open / mixed licence", f"{S['opensrc']}%")
-st.caption("Percentages are computed only over studies where the dimension was assessed, "
-           "blank cells mean *not assessed*, not *no*.")
 
 col_chart, col_nav = st.columns([3, 2])
 with col_chart:
