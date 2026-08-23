@@ -113,17 +113,19 @@ with col1:
     scatter_df = countries.copy()
     scatter_df["Region"] = scatter_df["region"].str.capitalize()
     fig_sc = px.scatter(
-        scatter_df, x="electrification_rate", y="nb_models_applied",
+        scatter_df, x="readiness_score", y="gap_score",
         color="Region",
         color_discrete_map={r.capitalize():c for r,c in REGION_COLORS.items()},
         hover_name="country_name",
-        hover_data={"electrification_rate":True,"nb_models_applied":True,"Region":False},
-        labels={"electrification_rate":"Electrification Rate (%)","nb_models_applied":"Models Applied"},
-        title="Electrification Rate vs. Models Applied",
+        hover_data={"readiness_score":True,"gap_score":True,"nb_models_applied":True,"Region":False},
+        labels={"readiness_score":"Readiness score (0–10)","gap_score":"Gap score (0–100)"},
+        title="Where modelling gaps meet institutional readiness",
     )
-    fig_sc.update_traces(marker=dict(size=9, opacity=0.85))
-    fig_sc.update_layout(height=320, margin={"t":40,"b":0,"l":0,"r":0}, yaxis=dict(range=[-0.5, scatter_df["nb_models_applied"].max() + 1.15]))
+    fig_sc.update_traces(marker=dict(size=10, opacity=0.85))
+    fig_sc.update_layout(height=320, margin={"t":40,"b":0,"l":0,"r":0})
     st.plotly_chart(fig_sc, use_container_width=True)
+    st.caption("Top-right: high modelling gap despite good institutional conditions — "
+               "the most actionable candidates for deeper engagement.")
 
 with col2:
     bins = [0,2,4,6,8,10.1]

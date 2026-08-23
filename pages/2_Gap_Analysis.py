@@ -155,7 +155,8 @@ st.divider()
 
 # ── Chart 3 of 4 : the gap map ───────────────────────────────────────────────────
 st.subheader("3 · Where the gaps concentrate")
-st.caption("Gap score combines feature coverage, institutional capacity, data availability and model density. See Methodology.")
+st.caption("Gap score combines coverage of Africa-specific dimensions, data availability, "
+           "energy governance and model density. Higher = more under-served. See Methodology.")
 fig_map = px.choropleth(
     countries_view, locations="iso3", color="gap_score",
     color_continuous_scale=["#EAF3EC", "#E8A24A", "#B71C1C"],

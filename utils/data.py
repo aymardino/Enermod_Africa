@@ -221,12 +221,16 @@ def enrich_countries(countries: pd.DataFrame, studies: pd.DataFrame) -> pd.DataF
         n = len(cs)
         feats = 0
         if n > 0:
-            feats = sum([
-                cs["informal_economy"].eq("yes").any(),
-                cs["biomass_charcoal"].eq("yes").any(),
-                cs["power_reliability"].eq("yes").any(),
-                cs["urbanization"].eq("yes").any(),
-            ]) / 4
+            # Share of studies covering each African-specific dimension, averaged.
+            # Using .any() would saturate: one study out of forty covering a theme
+            # would score the same as forty out of forty.
+            dims = ["informal_economy", "biomass_charcoal", "power_reliability", "urbanization"]
+            ratios = []
+            for d in dims:
+                col = cs[d].astype(str).str.strip().str.lower()
+                assessed = col[(col != "") & (col != "nan")]
+                ratios.append((assessed == "yes").sum() / len(assessed) if len(assessed) else 0)
+            feats = sum(ratios) / len(dims)
         row = c.to_dict()
         row["n_studies_actual"] = n
         row["feature_ratio"] = feats

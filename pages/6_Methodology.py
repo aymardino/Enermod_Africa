@@ -184,7 +184,7 @@ st.markdown(
 st.markdown(
     "| Component | Weight | How it is measured |\n"
     "|---|---|---|\n"
-    "| African feature coverage | 35% | Share of 4 features (informal economy, biomass/charcoal, power reliability, urbanisation) covered by at least one study of that country |\n"
+    "| African feature coverage | 35% | For each of 4 features (informal economy, biomass/charcoal, power reliability, urbanisation), the share of that country's assessed studies covering it; the four shares are then averaged |\n"
     "| Data availability | 30% | Ember score: `good` = 2, `limited` = 1, `none` = 0 (scaled to 30 pts) |\n"
     "| Energy governance | 20% | RISE score: `strong` = 2, `moderate` = 1, `weak` = 0 (scaled to 20 pts); countries with no RISE coverage get the neutral mid-value (1), so missing data neither helps nor hurts |\n"
     "| Model density | 15% | Number of distinct modelling tools applied, capped at 10 |")
@@ -192,8 +192,9 @@ st.latex(
     r"\text{gap} = (1-\text{feat})\cdot 35 + \left(1-\tfrac{\text{dat}}{2}\right)\cdot 30 "
     r"+ \left(1-\tfrac{\text{gov}}{2}\right)\cdot 20 + \left(1-\tfrac{\min(n,10)}{10}\right)\cdot 15"
 )
-st.caption("feat = feature ratio (0–1); dat = data-availability points (0–2); "
-           "gov = governance points (0–2, neutral = 1 if not assessed); n = distinct models applied.")
+st.caption("feat = mean share of studies covering each African-specific dimension (0–1); "
+           "dat = data-availability points (0–2); gov = governance points (0–2, neutral = 1 "
+           "if not assessed); n = distinct models applied, capped at 10.")
 st.divider()
 
 # ── Readiness score ────────────────────────────────────────────────────────────

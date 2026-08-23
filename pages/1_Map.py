@@ -241,7 +241,20 @@ if selected:
 
     if not c_studies.empty:
         st.markdown(f"**{len(c_studies)} studies** cover {selected} in this period:")
-        dcols = [c for c in ["model_name","year","scale","approach","method","open_source","informal_economy","local_ownership","sdg_7","sdg_13"] if c in c_studies.columns]
-        st.dataframe(c_studies[dcols].reset_index(drop=True), use_container_width=True, hide_index=True)
+        dcols = [c for c in ["model_name","year","scale","approach","open_source",
+                             "local_ownership","sdg_7","sdg_13","full_title","authors","link_doi"]
+                 if c in c_studies.columns]
+        disp = c_studies[dcols].reset_index(drop=True).copy()
+        col_config = {}
+        if "full_title" in disp.columns:
+            col_config["full_title"] = st.column_config.TextColumn("Title", width="medium")
+        if "link_doi" in disp.columns:
+            col_config["link_doi"] = st.column_config.LinkColumn(
+                "DOI", display_text="Open ↗",
+                help="Opens the source publication")
+            # LinkColumn needs a real URL; prefix bare DOIs with the resolver
+            disp["link_doi"] = disp["link_doi"].apply(
+                lambda v: f"https://doi.org/{v}" if v and not str(v).startswith("http") else v)
+        st.dataframe(disp, use_container_width=True, hide_index=True, column_config=col_config)
     else:
         st.info("No studies match the current filters for this country.")

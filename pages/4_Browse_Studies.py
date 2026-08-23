@@ -13,7 +13,7 @@ import streamlit as st
 import plotly.express as px
 import pandas as pd
 from utils.data import load_studies, load_countries, db_cache_token
-from utils.ui import SIDEBAR_CSS, render_logo
+from utils.ui import SIDEBAR_CSS, render_logo, level_label
 
 st.set_page_config(page_title="Browse Studies | AISESA", layout="wide", page_icon="assets/aisesa_logo.png")
 st.html(SIDEBAR_CSS)
@@ -48,10 +48,16 @@ with st.sidebar:
                                 default=[], placeholder="All")
     methods = st.multiselect("Method", sorted([m for m in studies["method"].dropna().unique() if m]),
                              default=[], placeholder="All")
-    freqs = st.multiselect("Usage frequency", sorted([f for f in studies["frequency"].dropna().unique() if f]),
-                           default=[], placeholder="All")
     lics = st.multiselect("License", sorted([l for l in studies["open_source"].dropna().unique() if l]),
                           default=[], placeholder="All")
+    lvl_opts = [l for l in ["full", "light", "unspecified"]
+                if l in studies["extraction_level"].dropna().unique()]
+    levels = st.multiselect("Model scope", lvl_opts, default=[], placeholder="All",
+                            format_func=level_label,
+                            help="Whole-system = models representing a complete energy system "
+                                 "(MESSAGE, OSeMOSYS, TIMES, LEAP, PLEXOS) | "
+                                 "Focused = models addressing a delimited question "
+                                 "(HOMER, OnSSET, GIS, calculators)")
 
     st.markdown("---")
     st.markdown(
@@ -88,8 +94,8 @@ filt = studies[studies["year"].between(year_range[0], year_range[1], inclusive="
 if scales:        filt = filt[filt["scale"].isin(scales)]
 if approaches:    filt = filt[filt["approach"].isin(approaches)]
 if methods:       filt = filt[filt["method"].isin(methods)]
-if freqs:         filt = filt[filt["frequency"].isin(freqs)]
 if lics:          filt = filt[filt["open_source"].isin(lics)]
+if levels:        filt = filt[filt["extraction_level"].isin(levels)]
 if f_informal:    filt = filt[filt["informal_economy"].eq("yes")]
 if f_biomass:     filt = filt[filt["biomass_charcoal"].eq("yes")]
 if f_reliability: filt = filt[filt["power_reliability"].eq("yes")]
@@ -158,15 +164,17 @@ st.divider()
 st.markdown("#### Studies")
 display_cols = [c for c in [
     "id", "model_name", "authors", "year", "extraction_level", "scale", "approach",
-    "method", "open_source", "frequency", "sdg_7", "local_ownership", "countries",
+    "method", "open_source", "sdg_7", "local_ownership", "countries",
 ] if c in filt.columns]
 rename = {
     "id": "ID", "model_name": "Model", "authors": "Authors", "year": "Year",
-    "extraction_level": "Extraction", "scale": "Scale", "approach": "Approach",
-    "method": "Method", "open_source": "License", "frequency": "Frequency",
+    "extraction_level": "Model scope", "scale": "Scale", "approach": "Approach",
+    "method": "Method", "open_source": "License",
     "sdg_7": "SDG 7", "local_ownership": "Local", "countries": "Countries",
 }
 disp = filt[display_cols].rename(columns=rename).reset_index(drop=True)
+if "Model scope" in disp.columns:
+    disp["Model scope"] = disp["Model scope"].map(level_label)
 if "Authors" in disp.columns:
     disp["Authors"] = disp["Authors"].str.slice(0, 40)
 if "Countries" in disp.columns:
@@ -189,13 +197,13 @@ if chosen is not None:
     title = show(s.get("full_title")) if show(s.get("full_title")).startswith("_") is False else s.get("model_name")
     st.markdown(f"### {title}")
     st.caption(f"Study #{int(s['id'])} · {show(s.get('authors'))} · "
-               f"{s['year'] if pd.notna(s['year']) else 'n.d.'} · extraction level: {s.get('extraction_level','unspecified')}")
+               f"{s['year'] if pd.notna(s['year']) else 'n.d.'} · "
+               f"model scope: {level_label(s.get('extraction_level','unspecified'))}")
 
-    c1, c2, c3, c4 = st.columns(4)
+    c1, c2, c3 = st.columns(3)
     c1.metric("Scale", show(s.get("scale")).replace("_", " "))
     c2.metric("Approach", show(s.get("approach")).replace("_", " "))
     c3.metric("License", show(s.get("open_source")).replace("_", " "))
-    c4.metric("Usage", show(s.get("frequency")).replace("_", " "))
 
     st.markdown("**Objective**")
     st.markdown(show(s.get("study_objective")))
