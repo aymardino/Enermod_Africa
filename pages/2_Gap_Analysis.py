@@ -86,27 +86,6 @@ st.markdown(
 studies = extraction_level_filter(studies, default="full")
 n = len(studies)
 
-# ── Headline KPIs (replace several former pie charts) ────────────────────────────
-_inf = coverage(studies, "informal_economy", positive=("yes",))
-_loc = coverage(studies, "local_ownership", positive=("no",))
-_open = coverage(studies, "open_source", positive=("open", "mixed"))
-_sdg7 = coverage(studies, "sdg_7", positive=("yes",))
-lead, rest = st.columns([1, 2])
-with lead:
-    st.markdown(
-        f"<div style='font-size:2.6rem; font-weight:700; color:#B71C1C; line-height:1;'>"
-        f"{_loc['pct']}%</div>"
-        f"<div style='font-size:0.82rem; color:#4A5650; margin-top:4px;'>of assessed studies "
-        f"have no African institution leading or co-leading the work</div>",
-        unsafe_allow_html=True)
-with rest:
-    st.markdown(
-        f"<div style='font-size:0.96rem; color:#4A5650; line-height:2.1; padding-top:6px;'>"
-        f"<b>{_inf['pct']}%</b> of studies cover the informal economy ({_inf['positive']} of {_inf['assessed']} assessed) &nbsp;·&nbsp; "
-        f"<b>{_open['pct']}%</b> use open or mixed-licence tools &nbsp;·&nbsp; "
-        f"average gap score is <b>{int(countries_view['gap_score'].mean())}/100</b>"
-        f"</div>", unsafe_allow_html=True)
-
 st.divider()
 
 # ── Chart 1 of 4 : African-specific feature coverage ─────────────────────────────
@@ -154,7 +133,7 @@ st.plotly_chart(fig_dev, use_container_width=True)
 st.divider()
 
 # ── Chart 3 of 4 : the gap map ───────────────────────────────────────────────────
-st.subheader("3 · Where the gaps concentrate")
+st.subheader("Where the gaps concentrate")
 st.caption("Gap score combines coverage of Africa-specific dimensions, data availability, "
            "energy governance and model density. Higher = more under-served. See Methodology.")
 fig_map = px.choropleth(
@@ -199,22 +178,16 @@ _mechs = _mechs[~_mechs.str.lower().isin(["", "nan", "none", "no"])]
 _mode_rate = _rates.mode().iloc[0] if len(_rates) else 0
 _mode_share = round((_rates == _mode_rate).sum() / len(_rates) * 100) if len(_rates) else 0
 
-lead, rest = st.columns([1, 2])
-with lead:
-    st.markdown(
-        f"<div style='font-size:2.6rem; font-weight:700; color:#5E35B1; line-height:1;'>"
-        f"{_mode_rate:.0f}%</div>"
-        f"<div style='font-size:0.82rem; color:#4A5650; margin-top:4px;'>the most common discount "
-        f"rate — used by {_mode_share}% of studies that state one</div>",
-        unsafe_allow_html=True)
-with rest:
-    st.markdown(
-        f"<div style='font-size:0.86rem; color:#4A5650; line-height:2.1; padding-top:6px;'>"
-        f"Only <b>{_fin['pct']}%</b> of studies model financing explicitly "
-        f"({_fin['positive']} of {_fin['assessed']} assessed) &nbsp;·&nbsp; "
-        f"<b>{len(_mechs)}</b> name a specific financing mechanism &nbsp;·&nbsp; "
-        f"<b>{_not_stated}</b> studies leave the rate unstated entirely"
-        f"</div>", unsafe_allow_html=True)
+st.markdown(
+    f"<div style='max-width:900px; margin:18px 0 24px 0;'>"
+    f"<div style='font-size:0.95rem; line-height:1.5; color:var(--text-color);'>"
+    f"<b style='font-size:1.35rem; color:#5E35B1;'>{_mode_rate:.0f}%</b> is the most common "
+    f"discount rate, used by {_mode_share}% of studies that state one</div>"
+    f"<div style='font-size:0.85rem; line-height:1.7; opacity:0.75; margin-top:8px;'>"
+    f"Only {_fin['pct']}% model financing explicitly ({_fin['positive']} of {_fin['assessed']} "
+    f"assessed) &nbsp;·&nbsp; {len(_mechs)} name a specific mechanism "
+    f"&nbsp;·&nbsp; {_not_stated} leave the rate unstated entirely</div>"
+    f"</div>", unsafe_allow_html=True)
 
 if len(_rates) > 1:
     import pandas as _pd

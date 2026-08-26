@@ -73,21 +73,18 @@ nc = len(countries)
 n_ranked = countries["readiness_score"].notna().sum()
 avg_score = countries["readiness_score"].mean()
 
-lead, rest = st.columns([1, 2])
-with lead:
-    st.markdown(
-        f"<div style='font-size:2.6rem; font-weight:700; color:#1E5631; line-height:1;'>"
-        f"{avg_score:.1f}<span style='font-size:1.3rem; color:#7A8B7F;'>/10</span></div>"
-        f"<div style='font-size:0.92rem; color:#4A5650; margin-top:4px;'>average readiness score "
-        f"across {n_ranked} ranked countries</div>",
-        unsafe_allow_html=True)
-with rest:
-    st.markdown(
-        f"<div style='font-size:0.96rem; color:#4A5650; line-height:2.1; padding-top:6px;'>"
-        f"<b>{int(countries['data_availability'].eq('good').sum())}</b> of {nc} countries have good data availability &nbsp;·&nbsp; "
-        f"<b>{int(countries['energy_governance'].eq('strong').sum())}</b> have strong energy governance &nbsp;·&nbsp; "
-        f"<b>{int(countries['has_lts'].eq('yes').sum())}</b> have a long-term strategy"
-        f"</div>", unsafe_allow_html=True)
+st.markdown(
+    f"<div style='max-width:900px; margin:18px 0 24px 0;'>"
+    f"<div style='font-size:0.95rem; line-height:1.5; color:var(--text-color);'>"
+    f"<b style='font-size:1.35rem; color:#1E5631;'>{avg_score:.1f}/10</b> average readiness score "
+    f"across {n_ranked} ranked countries</div>"
+    f"<div style='font-size:0.85rem; line-height:1.7; opacity:0.75; margin-top:8px;'>"
+    f"{int(countries['data_availability'].eq('good').sum())} of {nc} countries have good data "
+    f"availability &nbsp;·&nbsp; "
+    f"{int(countries['energy_governance'].eq('strong').sum())} have strong energy governance "
+    f"&nbsp;·&nbsp; "
+    f"{int(countries['has_lts'].eq('yes').sum())} have a long-term strategy</div>"
+    f"</div>", unsafe_allow_html=True)
 
 st.divider()
 
@@ -124,8 +121,6 @@ with col1:
     fig_sc.update_traces(marker=dict(size=10, opacity=0.85))
     fig_sc.update_layout(height=320, margin={"t":40,"b":0,"l":0,"r":0})
     st.plotly_chart(fig_sc, use_container_width=True)
-    st.caption("Top-right: high modelling gap despite good institutional conditions — "
-               "the most actionable candidates for deeper engagement.")
 
 with col2:
     bins = [0,2,4,6,8,10.1]

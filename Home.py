@@ -232,36 +232,53 @@ st.markdown(beta_banner(), unsafe_allow_html=True)
 st.markdown(
     "<h1 style='margin-top:0.4rem; margin-bottom:0;'>African Energy Modelling Observatory</h1>",
     unsafe_allow_html=True)
-st.markdown(
-    "<p style='color:var(--text-color); margin-top:2px; font-size:0.99rem; font-family:\"Source Serif 4\",Georgia,serif;'>"
-    "How is Africa's energy future being modelled? by whom, with what tools, and where are the silences?</p>",
-    unsafe_allow_html=True)
 
 
 # ── Narrative framing (live figures) ─────────────────────────────────────────────
 st.markdown(f"""
-<div style='font-family:Georgia,serif; font-size:0.89rem; line-height:1.7; color:var(--text-color);
-            max-width:900px; margin:0 0 8px 0;'>
-<p>{S['n']} modelling studies, {S['y0']}–{S['y1']}, {S['n_tools']} distinct tools, all 54 African
-countries</p>
+<p>Africa's energy future is being modelled, but by whom, with which tools, and with what
+blind spots? Individual studies exist in abundance; a synthesis of what they collectively
+show, and collectively miss, does not.</p>
+
+<p>This observatory maps <b>{S['n']} modelling studies</b> published between {S['y0']} and
+{S['y1']}, covering all 54 African countries and drawing on <b>{S['n_tools']} distinct
+modelling tools</b>. Every study is manually verified, and every figure updates as the
+inventory grows.</p>
+
+<p>It is built to answer questions such as:</p>
 </div>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+- Which countries are heavily modelled, and which are barely studied at all?
+- Which tools dominate ? and are they open, or locked behind licences?
+- How much of this research is led by African institutions?
+- Do the models capture what actually shapes African energy systems: informal economies,
+  charcoal and biomass, unreliable supply, rapid urbanisation?
+- Which countries have the institutions and data to put models to work?
+""")
+
 st.markdown(f"""
 <style>
-  .kpi-grid {{ display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
-               gap:10px; margin:16px 0; }}
+  .kpi-grid {{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+               gap:10px; margin:16px 0 8px 0; }}
   .kpi-box {{ background:rgba(128,128,128,0.08); border-radius:8px; padding:12px 14px; }}
-  .kpi-val {{ font-size:1.5rem; font-weight:700; line-height:1.1; }}
-  .kpi-lbl {{ font-size:0.78rem; opacity:0.7; margin-top:2px; }}
+  .kpi-lbl {{ font-size:0.78rem; opacity:0.7; margin-bottom:2px; }}
+  .kpi-val {{ font-size:1.5rem; font-weight:700; line-height:1.15; }}
 </style>
 <div class="kpi-grid">
-  <div class="kpi-box"><div class="kpi-val">{S['n']}</div><div class="kpi-lbl">Studies</div></div>
-  <div class="kpi-box"><div class="kpi-val">{S['covered']}/{S['n_countries']}</div><div class="kpi-lbl">Countries covered</div></div>
-  <div class="kpi-box"><div class="kpi-val">{S['n_tools']}</div><div class="kpi-lbl">Modelling tools</div></div>
-  <div class="kpi-box"><div class="kpi-val">{S['african_led']}%</div><div class="kpi-lbl">African-led</div></div>
-  <div class="kpi-box"><div class="kpi-val">{S['mixed']}%</div><div class="kpi-lbl">Mixed</div></div>
-  <div class="kpi-box"><div class="kpi-val">{S['opensrc']}%</div><div class="kpi-lbl">Open / mixed licence</div></div>
+  <div class="kpi-box"><div class="kpi-lbl">Studies</div>
+    <div class="kpi-val">{S['n']}</div></div>
+  <div class="kpi-box"><div class="kpi-lbl">Countries covered</div>
+    <div class="kpi-val">{S['covered']}/{S['n_countries']}</div></div>
+  <div class="kpi-box"><div class="kpi-lbl">Energy modelling tools</div>
+    <div class="kpi-val">{S['n_tools']}</div></div>
+  <div class="kpi-box"><div class="kpi-lbl">African-led</div>
+    <div class="kpi-val">{S['african_led']}%</div>
+    <div style="font-size:0.58rem; opacity:0.6; margin-top:3px;">
+      {S['afr_led_full']}% whole-system · {S['afr_led_light']}% focused</div></div>
+  <div class="kpi-box"><div class="kpi-lbl">Open / mixed licence</div>
+    <div class="kpi-val">{S['opensrc']}%</div></div>
 </div>
 """, unsafe_allow_html=True)
 st.caption("Every figure updates automatically as new studies are added. "
@@ -309,7 +326,7 @@ _n_light = _lvl_counts.get("light", 0)
 
 st.markdown("#### What's in this inventory")
 st.markdown(
-    "<p style='font-family:Georgia,serif; font-size:1rem; line-height:1.7; "
+    "<p style='font-family:Georgia,serif; font-size:0.95rem; line-height:1.7; "
     "color:var(--text-color); max-width:900px;'>"
     "Studies are grouped by the <i>scope of the model</i> they use. Statistics mixing the two "
     "can mislead, so most analytical pages let you filter by scope.</p>",
@@ -319,24 +336,24 @@ sc1, sc2 = st.columns(2)
 with sc1:
     st.markdown(
         f"<p style='font-family:Georgia,serif; margin-bottom:2px;'>"
-        f"<b style='font-size:1.3rem; color:{GREEN};'>{_n_full}</b> "
+        f"<b style='font-size:1.1rem; color:{GREEN};'>{_n_full}</b> "
         f"<b>whole-system studies</b></p>"
-        f"<p style='font-size:0.9rem; line-height:1.6; opacity:0.8; max-width:420px;'>"
+        f"<p style='font-size:0.85rem; line-height:1.6; opacity:0.8; max-width:420px;'>"
         f"Long-term planning models — MESSAGE, OSeMOSYS, TIMES, LEAP, PLEXOS, Balmorel. "
         f"All 50+ fields extracted.</p>",
         unsafe_allow_html=True)
 with sc2:
     st.markdown(
         f"<p style='font-family:Georgia,serif; margin-bottom:2px;'>"
-        f"<b style='font-size:1.3rem; color:#B8860B;'>{_n_light}</b> "
+        f"<b style='font-size:1.1rem; color:#B8860B;'>{_n_light}</b> "
         f"<b>focused studies</b></p>"
-        f"<p style='font-size:0.9rem; line-height:1.6; opacity:0.8; max-width:420px;'>"
+        f"<p style='font-size:0.85rem; line-height:1.6; opacity:0.8; max-width:420px;'>"
         f"Techno-economic, GIS, mini-grid, electrification and calculators — HOMER, OnSSET, "
         f"GACMO. Core fields only.</p>",
         unsafe_allow_html=True)
 st.divider()
 
 st.markdown(
-    "<p style='text-align:center; font-size:0.92rem; color:var(--text-color); margin-top:24px;'>"
+    "<p style='text-align:center; font-size:0.9rem; color:var(--text-color); margin-top:24px;'>"
     "<b>AISESA &nbsp;·&nbsp; MINES Paris-PSL &nbsp;·&nbsp; Research Platform</b></p>",
     unsafe_allow_html=True)

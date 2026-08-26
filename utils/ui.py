@@ -76,6 +76,12 @@ THEME_CSS = """
     border: 1px solid rgba(128,128,128,0.18);
     border-radius: 8px; padding: 0.6rem 0.8rem;
   }
+
+  .stMarkdown p, .stMarkdown li {
+      font-size: 0.95rem;
+      line-height: 1.75;
+  }
+
   [data-testid="stMetricValue"] {
     font-size: 1.5rem !important;
     color: var(--text-color, inherit) !important;
