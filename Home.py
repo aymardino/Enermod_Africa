@@ -233,28 +233,37 @@ st.markdown(
     "<h1 style='margin-top:0.4rem; margin-bottom:0;'>African Energy Modelling Observatory</h1>",
     unsafe_allow_html=True)
 st.markdown(
-    "<p style='color:var(--text-color); margin-top:2px; font-size:1.09rem; font-family:\"Source Serif 4\",Georgia,serif; font-style:italic;'>"
+    "<p style='color:var(--text-color); margin-top:2px; font-size:0.99rem; font-family:\"Source Serif 4\",Georgia,serif;'>"
     "How is Africa's energy future being modelled? by whom, with what tools, and where are the silences?</p>",
     unsafe_allow_html=True)
 
 
 # ── Narrative framing (live figures) ─────────────────────────────────────────────
 st.markdown(f"""
-<div style='font-family:Georgia,serif; font-size:1.05rem; line-height:1.7; color:var(--text-color);
+<div style='font-family:Georgia,serif; font-size:0.89rem; line-height:1.7; color:var(--text-color);
             max-width:900px; margin:0 0 8px 0;'>
 <p>{S['n']} modelling studies, {S['y0']}–{S['y1']}, {S['n_tools']} distinct tools, all 54 African
 countries</p>
 </div>
 """, unsafe_allow_html=True)
 
-m1, m2, m3, m4, m5 = st.columns(5)
-m1.metric("Studies", S["n"])
-m2.metric("Countries covered", f"{S['covered']}/{S['n_countries']}")
-m3.metric("Energy modelling tools", S["n_tools"])
-m4.metric("African-led", f"{S['african_led']}%",
-          help=f"{S['afr_led_full']}% among whole-system models, "
-               f"{S['afr_led_light']}% among focused models")
-m5.metric("Open / mixed licence", f"{S['opensrc']}%")
+st.markdown(f"""
+<style>
+  .kpi-grid {{ display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+               gap:10px; margin:16px 0; }}
+  .kpi-box {{ background:rgba(128,128,128,0.08); border-radius:8px; padding:12px 14px; }}
+  .kpi-val {{ font-size:1.5rem; font-weight:700; line-height:1.1; }}
+  .kpi-lbl {{ font-size:0.78rem; opacity:0.7; margin-top:2px; }}
+</style>
+<div class="kpi-grid">
+  <div class="kpi-box"><div class="kpi-val">{S['n']}</div><div class="kpi-lbl">Studies</div></div>
+  <div class="kpi-box"><div class="kpi-val">{S['covered']}/{S['n_countries']}</div><div class="kpi-lbl">Countries covered</div></div>
+  <div class="kpi-box"><div class="kpi-val">{S['n_tools']}</div><div class="kpi-lbl">Modelling tools</div></div>
+  <div class="kpi-box"><div class="kpi-val">{S['african_led']}%</div><div class="kpi-lbl">African-led</div></div>
+  <div class="kpi-box"><div class="kpi-val">{S['mixed']}%</div><div class="kpi-lbl">Mixed</div></div>
+  <div class="kpi-box"><div class="kpi-val">{S['opensrc']}%</div><div class="kpi-lbl">Open / mixed licence</div></div>
+</div>
+""", unsafe_allow_html=True)
 st.caption("Every figure updates automatically as new studies are added. "
            "Full methodology and sources on the Methodology page.")
 
