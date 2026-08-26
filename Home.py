@@ -307,43 +307,33 @@ _lvl_counts = _studies_for_breakdown["extraction_level"].fillna("(unclassified)"
 _n_full = _lvl_counts.get("full", 0)
 _n_light = _lvl_counts.get("light", 0)
 
-st.markdown(f"""
-<div style='background:rgba(128,128,128,0.06); padding:18px 22px;
-            border-radius:4px; margin:18px 0 24px 0; font-family:Inter,sans-serif;'>
-  <p style='margin:0 0 12px 0; font-size:1.1rem; color:var(--text-color);
-            text-transform:uppercase; letter-spacing:0.08em; font-weight:800;'>
-    <b>What's in this inventory</b>
-  </p>
-  <p style='margin:0 0 14px 0; font-size:0.88rem; color:var(--text-color); line-height:1.4;'>
-    Studies are grouped by the <b>scope of the model</b> they use. Whole-system models
-    represent a complete energy system; focused models address a delimited question.
-    Statistics computed on a mix of these two categories can be misleading, so most
-    analytical pages let you filter.
-  </p>
-  <div style='display:grid; grid-template-columns:repeat(2, 1fr); gap:14px;'>
-    <div style='background:rgba(128,128,128,0.12); padding:12px 14px; border-radius:6px;'>
-      <div style='font-size:1.1rem; font-weight:700; color:var(--text-color);'>{_n_full}</div>
-      <div style='font-size:0.88rem; color:var(--text-color); text-transform:uppercase;
-                  letter-spacing:0.05em; font-weight:700; margin:2px 0 6px 0;'><b>whole-system</b></div>
-      <div style='font-size:0.82rem; color:var(--text-color); line-height:1.4;'>
-        Long-term planning models (MESSAGE, OSeMOSYS, TIMES, LEAP, PLEXOS, Balmorel).
-        All 50+ fields extracted, whether the document is a paper, a technical report,
-        or a country-policy document using one of these tools.
-      </div>
-    </div>
-    <div style='background:rgba(128,128,128,0.12); padding:12px 14px; border-radius:6px;'>
-      <div style='font-size:1.1rem; font-weight:700; color:var(--text-color);'>{_n_light}</div>
-      <div style='font-size:0.88rem; color:var(--text-color); text-transform:uppercase;
-                  letter-spacing:0.05em; font-weight:700; margin:2px 0 6px 0;'><b>focused</b></div>
-      <div style='font-size:0.82rem; color:var(--text-color); line-height:1.4;'>
-        Techno-economic, GIS, mini-grid, electrification, calculators (HOMER, OnSSET,
-        GACMO), and country-policy documents without a full planning model. Core
-        fields only.
-      </div>
-    </div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
+st.markdown("#### What's in this inventory")
+st.markdown(
+    "<p style='font-family:Georgia,serif; font-size:1rem; line-height:1.7; "
+    "color:var(--text-color); max-width:900px;'>"
+    "Studies are grouped by the <i>scope of the model</i> they use. Statistics mixing the two "
+    "can mislead, so most analytical pages let you filter by scope.</p>",
+    unsafe_allow_html=True)
+
+sc1, sc2 = st.columns(2)
+with sc1:
+    st.markdown(
+        f"<p style='font-family:Georgia,serif; margin-bottom:2px;'>"
+        f"<b style='font-size:1.3rem; color:{GREEN};'>{_n_full}</b> "
+        f"<b>whole-system studies</b></p>"
+        f"<p style='font-size:0.9rem; line-height:1.6; opacity:0.8; max-width:420px;'>"
+        f"Long-term planning models — MESSAGE, OSeMOSYS, TIMES, LEAP, PLEXOS, Balmorel. "
+        f"All 50+ fields extracted.</p>",
+        unsafe_allow_html=True)
+with sc2:
+    st.markdown(
+        f"<p style='font-family:Georgia,serif; margin-bottom:2px;'>"
+        f"<b style='font-size:1.3rem; color:#B8860B;'>{_n_light}</b> "
+        f"<b>focused studies</b></p>"
+        f"<p style='font-size:0.9rem; line-height:1.6; opacity:0.8; max-width:420px;'>"
+        f"Techno-economic, GIS, mini-grid, electrification and calculators — HOMER, OnSSET, "
+        f"GACMO. Core fields only.</p>",
+        unsafe_allow_html=True)
 st.divider()
 
 st.markdown(
