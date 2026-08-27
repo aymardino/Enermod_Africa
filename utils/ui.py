@@ -65,7 +65,7 @@ THEME_CSS = """
     padding: 2.9rem 1rem 1rem 1rem !important; overflow: visible !important;
   }
   [data-testid="stLogo"], [data-testid="stSidebarHeader"] img {
-    height: 129px !important; width: auto !important; max-width: 99% !important;
+    height: 89px !important; width: auto !important; max-width: 99% !important;
     object-fit: contain !important; margin: 0 !important;
   }
   [data-testid="stSidebarNav"] { margin-top: 2.5rem !important; }
@@ -114,7 +114,7 @@ def beta_banner() -> str:
     return (
         "<div style='background:rgba(214,150,40,0.16); color:#B5791A; "
         "border:1px solid rgba(214,150,40,0.30); border-radius:8px; "
-        "padding:8px 16px; font-size:0.9rem; font-weight:600; font-family:Inter,sans-serif; "
+        "padding:8px 16px; font-size:0.79rem; font-weight:600; font-family:Inter,sans-serif; "
         "display:flex; align-items:center; gap:8px; margin-top:0.5rem;'>"
         "&#128679; We're still in beta, data and features are evolving</div>"
     )
