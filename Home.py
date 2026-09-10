@@ -289,8 +289,7 @@ st.markdown(
     "margin:0 0 0.3rem 0;'>Where the authors are based</div>",
     unsafe_allow_html=True)
 st.plotly_chart(author_origin_map(S["origin_map"]), use_container_width=True)
-st.caption("Author institutions by country, counted once per study — "
-            "most modelling effort is still based outside Africa.")
+st.caption("Author institutions by country, counted once per study ")
 
 st.divider()
 
