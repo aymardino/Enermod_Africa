@@ -97,6 +97,7 @@ CREATE TABLE studies (
     power_reliability TEXT, urbanization TEXT, strengths TEXT, weaknesses TEXT,
     authors_affiliation TEXT, author_origin TEXT, local_ownership TEXT,
     institutional_users TEXT, grey_literature TEXT, cost_of_capital TEXT,
+    coc_min REAL, coc_max REAL, coc_type TEXT,
     financing_modelling TEXT, financing_mechanism TEXT, full_title TEXT,
     link_doi TEXT, contact TEXT, other_references TEXT
 );

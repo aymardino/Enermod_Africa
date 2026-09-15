@@ -123,7 +123,7 @@ def beta_banner() -> str:
 # ── Extraction-level filter (used on Gap, Readiness, Browse, Map) ────────────────
 EXTRACTION_LEVELS = ["full", "light"]
 LEVEL_LABELS = {
-    "full": "Whole-system",
+    "full": "Whole energy-system",
     "light": "Focused",
     "unspecified": "Unspecified",
 }
@@ -160,7 +160,7 @@ def extraction_level_filter(df, default="full", key_suffix=""):
         key=f"el_filter{key_suffix}",
         help=(
             "Studies are grouped by the scope of the model they use. "
-            "**Whole-system** models represent a complete energy system and its "
+            "**Whole energy-system** models represent a complete energy system and its "
             "internal trade-offs. **Focused** models address a delimited question — "
             "site sizing, electricity access, spatial analysis or scenario accounting. "
             "Focused models leave methodological fields empty because those fields "
@@ -172,7 +172,7 @@ def extraction_level_filter(df, default="full", key_suffix=""):
                    f"{LEVEL_DESCRIPTIONS[picked]}")
         return df[df["extraction_level"] == picked].copy()
     else:
-        st.caption(f"Showing all {total} studies. Statistics aggregate whole-system "
+        st.caption(f"Showing all {total} studies. Statistics aggregate whole energy-system "
                    "and focused models together, which can be misleading.")
         return df.copy()
 

@@ -54,7 +54,7 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-st.title("Which countries are ready to use models?")
+st.title("Which countries are best prepared to use models?")
 st.markdown(
     "<p style='font-size:1rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:1100px;text-align:justify; hyphens:auto;'>"
     "A model is only as useful as a country's ability to run, maintain and trust it. Readiness combines "

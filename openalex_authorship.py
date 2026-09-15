@@ -10,7 +10,7 @@ Usage:
   pip install requests pandas openpyxl
   python openalex_authorship.py
 Input : Models_Africa_v2.xlsm (sheet studies.csv, columns study_id + link_doi)
-Output: authorship_openalex.csv
+Output: authorship_openalex.xlsx (sheet 'authorship')
 Run it at the final harmonization pass; ~1,000 DOIs take a few minutes.
 """
 
@@ -20,8 +20,8 @@ import requests
 import pandas as pd
 
 WORKBOOK = "Models_Africa_v2.xlsm"
-OUTPUT = "authorship_openalex.csv"
-MAILTO = "aymardplakoo@gmail.com"  # put your email (OpenAlex polite pool, faster)
+OUTPUT = "authorship_openalex.xlsx"
+MAILTO = "your.email@example.com"  # put your email (OpenAlex polite pool, faster)
 
 AFRICAN_ISO2 = {
     "DZ","AO","BJ","BW","BF","BI","CV","CM","CF","TD","KM","CG","CD","CI","DJ",
@@ -40,10 +40,10 @@ def norm_doi(x):
 
 
 def classify(work):
-    """Return (composition, leadership, note) from an OpenAlex work record."""
+    """Return (composition, leadership, countries, note) from an OpenAlex work record."""
     auths = work.get("authorships", [])
     if not auths:
-        return None, None, "no_authorships"
+        return None, None, "", "no_authorships"
     per_author = []          # one country-set per author
     lead_countries = set()   # countries of first + corresponding authors
     for a in auths:
@@ -53,14 +53,15 @@ def classify(work):
         if a.get("author_position") == "first" or a.get("is_corresponding"):
             lead_countries |= countries
     known = [c for c in per_author if c]
+    all_countries = ", ".join(sorted(set().union(*known))) if known else ""
     if not known:
-        return None, None, "no_affiliations"
+        return None, None, "", "no_affiliations"
     african = [bool(c & AFRICAN_ISO2) for c in known]
     composition = ("all_african" if all(african)
                    else "mixed" if any(african) else "none")
     leadership = "yes" if lead_countries & AFRICAN_ISO2 else "no"
     note = "some_authors_unaffiliated" if len(known) < len(per_author) else ""
-    return composition, leadership, note
+    return composition, leadership, all_countries, note
 
 
 def main():
@@ -71,7 +72,7 @@ def main():
     rows, todo = [], df[df["_doi"].notna()][["study_id", "_doi"]].values.tolist()
     for sid, _ in df[df["_doi"].isna()][["study_id", doi_col]].values.tolist():
         rows.append({"study_id": sid, "composition": "", "leadership": "",
-                     "review": "no_doi"})
+                     "author_countries": "", "review": "no_doi"})
 
     for i in range(0, len(todo), 50):
         batch = todo[i:i + 50]
@@ -87,19 +88,20 @@ def main():
         for sid, doi in batch:
             w = found.get(doi)
             if w is None:
-                rows.append({"study_id": sid, "composition": "",
-                             "leadership": "", "review": "not_in_openalex"})
+                rows.append({"study_id": sid, "composition": "", "leadership": "",
+                             "author_countries": "", "review": "not_in_openalex"})
                 continue
-            comp, lead, note = classify(w)
+            comp, lead, countries, note = classify(w)
             rows.append({"study_id": sid,
                          "composition": comp or "",
                          "leadership": lead or "",
-                         "review": note if comp is None else note})
+                         "author_countries": countries,
+                         "review": note})
         print(f"{min(i + 50, len(todo))}/{len(todo)} DOIs processed")
         time.sleep(0.3)
 
     out = pd.DataFrame(rows).sort_values("study_id")
-    out.to_csv(OUTPUT, index=False)
+    out.to_excel(OUTPUT, index=False, sheet_name="authorship")
     n = len(out)
     ok = (out["composition"] != "").sum()
     print(f"\nDone: {ok}/{n} classified -> {OUTPUT}")

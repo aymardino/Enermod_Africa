@@ -41,7 +41,7 @@ with st.sidebar:
         default=[],
         format_func=level_label,
         placeholder="All models",
-        help="Whole-system = models representing a complete energy system "
+        help="Whole energy-system = models representing a complete energy system "
              "(MESSAGE, OSeMOSYS, TIMES, LEAP, PLEXOS) | "
              "Focused = models addressing a delimited question — site sizing, "
              "electricity access, spatial analysis, scenario accounting "
@@ -106,7 +106,7 @@ def count_filtered(iso):
     return filt["countries"].str.contains(pat, regex=True, na=False).sum()
 countries["nb_models_applied"] = countries["iso_code"].apply(count_filtered)
 
-st.title("Where is Africa being modelled?")
+st.title("Which African countries are modelled?")
 st.markdown(
     "<p style='font-size:1rem; color:var(--text-color); font-family:Georgia,serif; line-height:1.7; max-width:1000px;text-align:justify; hyphens:auto;'>"
     "Modelling effort is not spread evenly across the continent. A handful of countries attract most "
@@ -204,10 +204,16 @@ with col2:
             model_counts.sort_values("Studies"),
             x="Studies", y="Model", orientation="h",
             color_discrete_sequence=["#2E7D32"],
-            title=f"Top Models in current selection ({len(filt)} studies)",
+            title=f"Top tools in current selection ({len(filt)} studies)",
         )
         fig_m.update_layout(height=260, margin={"t":40,"b":0,"l":0,"r":0})
         st.plotly_chart(fig_m, use_container_width=True)
+        st.markdown(
+            "<p style='font-size:0.75rem; color:grey; line-height:1.4; margin-top:-0.5rem;'>"
+            "A study may use several linked tools, e.g. OSeMOSYS coupled with OnSSET. "
+            "The scope filter classifies the study, not each individual tool.</p>",
+            unsafe_allow_html=True,
+        )
     else:
         st.info("No tools to display for the current filter selection.")
 

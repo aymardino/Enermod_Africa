@@ -14,6 +14,8 @@ import plotly.express as px
 import pandas as pd
 from utils.data import load_countries, load_studies, enrich_countries, coverage, ISO2_TO_ISO3, db_cache_token
 from utils.ui import SIDEBAR_CSS, render_logo, extraction_level_filter
+from utils.origin_map import build_origin_map_df, author_origin_choropleth
+
 
 st.set_page_config(page_title="Gap Analysis | AISESA", layout="wide", page_icon="assets/aisesa_logo.png")
 st.html(SIDEBAR_CSS)
@@ -116,9 +118,13 @@ st.plotly_chart(fig_feat, use_container_width=True)
 st.divider()
 
 # ── Chart 2 of 4 : who develops the models ───────────────────────────────────────
-st.subheader("Most studies are not African-led")
-st.caption("Origin inferred from author affiliations. A study is 'Mixed' when it combines African and non-African institutions.")
-origins = studies["developer_origin"].map(classify_origin).dropna()
+st.subheader("Who leads the modelling?")
+st.caption("Based on author affiliations. African-led: the first author, or all authors, "
+           "are at African institutions. Mixed: the first author is at a non-African institution "
+           "in a team that includes African institutions. Non-African: all authors are outside Africa.")
+origins = (studies["local_ownership"].astype(str).str.strip().str.lower()
+           .map({"yes": "African-led", "partial": "Mixed", "no": "Non-African"})
+           .dropna())
 dev_df = origins.value_counts().reset_index()
 dev_df.columns = ["Origin", "Count"]
 order = [o for o in ["African-led", "Mixed", "Non-African"] if o in dev_df["Origin"].values]
@@ -129,6 +135,18 @@ fig_dev = px.bar(dev_df, x="Count", y="Origin", orientation="h", text="Count",
 fig_dev.update_layout(showlegend=False, height=220, margin={"t": 10, "b": 0},
                       xaxis_title=f"Studies (of {len(origins)} with stated affiliation)", yaxis_title="")
 st.plotly_chart(fig_dev, use_container_width=True)
+
+st.markdown("<div style='font-family:Georgia,serif; font-weight:600; font-size:0.98rem; "
+            "margin:14px 0 4px 0;'>Where the authors are based</div>", unsafe_allow_html=True)
+_map_studies = studies
+if region_filter:
+    _isos = set(countries_view["iso_code"])
+    _map_studies = studies[studies["countries"].apply(
+        lambda s: any(c.strip() in _isos for c in str(s).split(",") if c.strip()))]
+st.plotly_chart(author_origin_choropleth(build_origin_map_df(_map_studies, countries)),
+                use_container_width=True)
+st.caption(f"Author institutions by country, counted once per study, for the {len(_map_studies)} "
+           "studies matching the current scope and region filters.")
 
 st.divider()
 
@@ -154,55 +172,54 @@ st.divider()
 st.subheader("Do the models account for how projects are financed?")
 st.caption("Capital cost and financing assumptions shape every investment result, yet are often left implicit or uniform.")
 
-# cost_of_capital holds actual rates (e.g. 0.1 = 10%), "not_stated", or free text — not yes/no.
-import re as _re
-def _parse_rate(v):
-    v = str(v).strip().lower()
-    if not v or v in ("nan", "not_stated", "none"):
-        return None
-    m = _re.search(r"(\d+(?:\.\d+)?)\s*%", v)        # e.g. "8% (BF)"
-    if m:
-        return float(m.group(1))
-    try:
-        x = float(v)
-        return x * 100 if x <= 1 else x               # 0.1 -> 10%
-    except ValueError:
-        return None
+# cost_of_capital: raw text kept in `cost_of_capital`; parsed by Excel into
+# coc_min / coc_max (%) and coc_type (single / range / multiple / not_stated).
+_coc_type = studies["coc_type"].astype(str).str.strip().str.lower()
+_coc_min = pd.to_numeric(studies["coc_min"], errors="coerce")
+_coc_max = pd.to_numeric(studies["coc_max"], errors="coerce")
+# Excel stores 8 % as 0.08: rescale when values are fractions
+if _coc_min.dropna().max() <= 1:
+    _coc_min = _coc_min * 100
+    _coc_max = _coc_max * 100
 
-_rates = studies["cost_of_capital"].map(_parse_rate).dropna()
-_not_stated = (studies["cost_of_capital"].astype(str).str.strip().str.lower() == "not_stated").sum()
+_stated = _coc_type.isin(["single", "range", "multiple"]) & _coc_min.notna()
+_rates = _coc_min[_stated]                       # base (lowest) rate per study
+_n_varied = int(_coc_type.isin(["range", "multiple"]).sum())
+_not_stated = int((_coc_type == "not_stated").sum())
+
 _fin = coverage(studies, "financing_modelling", positive=("yes",))
 _mechs = studies["financing_mechanism"].astype(str).str.strip()
 _mechs = _mechs[~_mechs.str.lower().isin(["", "nan", "none", "no"])]
 
-_mode_rate = _rates.mode().iloc[0] if len(_rates) else 0
-_mode_share = round((_rates == _mode_rate).sum() / len(_rates) * 100) if len(_rates) else 0
+_mode_rate = _rates.round(0).mode().iloc[0] if len(_rates) else 0
+_mode_share = round((_rates.round(0) == _mode_rate).sum() / len(_rates) * 100) if len(_rates) else 0
 
 st.markdown(
     f"<div style='max-width:900px; margin:18px 0 24px 0;'>"
     f"<div style='font-size:0.95rem; line-height:1.5; color:var(--text-color);'>"
     f"<b style='font-size:1.35rem; color:#5E35B1;'>{_mode_rate:.0f}%</b> is the most common "
-    f"discount rate, used by {_mode_share}% of studies that state one</div>"
+    f"discount rate, used by {_mode_share}% of the {len(_rates)} studies that state one</div>"
     f"<div style='font-size:0.85rem; line-height:1.7; opacity:0.75; margin-top:8px;'>"
-    f"Only {_fin['pct']}% model financing explicitly ({_fin['positive']} of {_fin['assessed']} "
-    f"assessed) &nbsp;·&nbsp; {len(_mechs)} name a specific mechanism "
+    f"Only {_n_varied} studies test more than one rate (range or scenario-specific) "
+    f"&nbsp;·&nbsp; {_fin['pct']}% model financing explicitly ({_fin['positive']} of {_fin['assessed']} assessed) "
+    f"&nbsp;·&nbsp; {len(_mechs)} name a specific mechanism "
     f"&nbsp;·&nbsp; {_not_stated} leave the rate unstated entirely</div>"
     f"</div>", unsafe_allow_html=True)
 
 if len(_rates) > 1:
-    import pandas as _pd
     rate_df = _rates.round(0).astype(int).value_counts().sort_index().reset_index()
     rate_df.columns = ["Discount rate (%)", "Studies"]
     fig_rate = px.bar(rate_df, x="Discount rate (%)", y="Studies", text="Studies",
                       color_discrete_sequence=["#5E35B1"])
     fig_rate.update_traces(textposition="outside")
     fig_rate.update_layout(height=260, margin={"t": 10, "b": 0},
-                           xaxis_title="Assumed cost of capital / discount rate (%)",
+                           xaxis_title="Assumed cost of capital / discount rate (%, base case)",
                            yaxis_title="Studies",
                            yaxis=dict(range=[0, rate_df["Studies"].max() * 1.15]))
     st.plotly_chart(fig_rate, use_container_width=True)
-    st.caption(f"Of the studies that state a rate, most assume a uniform {_mode_rate:.0f}% — rarely "
-               "differentiated by country risk, despite wide variation in real financing costs across Africa.")
+    st.caption(f"Of the studies that state a rate, most assume a uniform {_mode_rate:.0f}% "
+               f"and only {_n_varied} vary it across scenarios, despite wide differences "
+               "in real financing costs across African countries.")
 
 st.divider()
 

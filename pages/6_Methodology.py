@@ -70,7 +70,7 @@ st.markdown(
     "the study, not of how it was processed: focused models leave methodological fields "
     "empty because those fields do not apply to them.")
 st.markdown(
-    "- **Whole-system** — models that represent a complete energy system and its internal "
+    "- **Whole energy-system** — models that represent a complete energy system and its internal "
     "trade-offs across sectors (MESSAGE, OSeMOSYS, TIMES, LEAP, PLEXOS, Balmorel). "
     "All 50+ structured fields are relevant and extracted. This applies whether the "
     "document is a peer-reviewed article, a technical report, or a country-policy "
@@ -84,9 +84,9 @@ st.markdown(
     "captured by the separate `grey_literature` field, independently of model scope.")
 callout("⚠ <b>Mixing scopes in statistics can mislead.</b> For example, "
         "'Top tools by usage' computed across both groups will dilute MESSAGE/OSeMOSYS "
-        "(whole-system) with HOMER (focused). Most analytical pages let you filter — "
+        "(whole energy-system) with HOMER (focused). Most analytical pages let you filter — "
         "use it to keep comparisons honest.")
-st.info(f"Current inventory ({n} studies): {int(lv.get('full',0))} whole-system · "
+st.info(f"Current inventory ({n} studies): {int(lv.get('full',0))} whole energy-system · "
         f"{int(lv.get('light',0))} focused · {int(lv.get('unspecified',0))} unspecified.")
 st.divider()
 
