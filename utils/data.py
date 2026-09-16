@@ -93,12 +93,17 @@ def load_studies() -> pd.DataFrame:
         pj = pd.read_sql(
             "SELECT study_id, GROUP_CONCAT(pool_code, ',') AS power_pool "
             "FROM study_pools GROUP BY study_id", con)
+        tj = pd.read_sql(
+            "SELECT study_id, GROUP_CONCAT(tool_name, ', ') AS tools "
+            "FROM study_tools GROUP BY study_id", con)
 
     # Rebuild legacy text columns from the junction tables (authoritative)
     df = df.drop(columns=[c for c in ("countries", "power_pool") if c in df.columns])
-    df = df.merge(cj, on="study_id", how="left").merge(pj, on="study_id", how="left")
+    df = df.merge(cj, on="study_id", how="left").merge(pj, on="study_id", how="left").merge(tj, on="study_id", how="left")
     df["countries"] = df["countries"].fillna("")
     df["power_pool"] = df["power_pool"].fillna("")
+    df["tools"] = df["tools"].fillna("")
+
 
     # Backward-compatible aliases for the pages
     df["id"] = pd.to_numeric(df["study_id"], errors="coerce").astype("Int64")
@@ -110,7 +115,8 @@ def load_studies() -> pd.DataFrame:
     if "author_origin" in df.columns:
         df["developer_origin"] = df["author_origin"]
     if "link_doi" in df.columns:
-        df["link"] = df["link_doi"]
+        link = df["link_doi"].fillna("").astype(str).str.strip()
+        df["link"] = link.where(~link.str.match(r"^10\.\d{4,}"), "https://doi.org/" + link)
     return df
 
 

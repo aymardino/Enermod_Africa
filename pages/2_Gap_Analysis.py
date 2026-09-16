@@ -13,7 +13,7 @@ import streamlit as st
 import plotly.express as px
 import pandas as pd
 from utils.data import load_countries, load_studies, enrich_countries, coverage, ISO2_TO_ISO3, db_cache_token
-from utils.ui import SIDEBAR_CSS, render_logo, extraction_level_filter
+from utils.ui import SIDEBAR_CSS, render_logo, extraction_level_filter, render_partner_logos
 from utils.origin_map import build_origin_map_df, author_origin_choropleth
 
 
@@ -66,6 +66,8 @@ with st.sidebar:
         "The region filter applies to the map and the supporting table, but not the headline KPIs or charts 1-2, which summarise the full dataset.</p>",
         unsafe_allow_html=True)
     st.markdown("---")
+
+    render_partner_logos()
     st.markdown(
         "<p style='font-size:0.69rem; color:var(--text-color); font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2026</p>",
         unsafe_allow_html=True)

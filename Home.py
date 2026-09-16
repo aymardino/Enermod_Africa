@@ -9,7 +9,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from utils.data import (load_countries, load_studies, load_tools,
                         enrich_countries, coverage, ISO2_TO_ISO3, db_cache_token)
-from utils.ui import SIDEBAR_CSS, beta_banner, GREEN, render_logo, inventory_breakdown
+from utils.ui import SIDEBAR_CSS, beta_banner, GREEN, render_logo, inventory_breakdown, render_partner_logos
 import pandas as pd
 import pycountry
 from utils.origin_map import build_origin_map_df, author_origin_choropleth
@@ -84,28 +84,6 @@ with st.sidebar:
         "<p style='font-size:0.82rem; line-height:1.6;'>A living inventory of energy modelling "
         "studies and tools applied across Africa.</p>", unsafe_allow_html=True)
     st.markdown("---")
-    st.markdown(
-        "<p style='font-size:0.78rem; color:var(--text-color); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Quick stats</p>",
-        unsafe_allow_html=True)
-    cs1, cs2 = st.columns(2)
-    cs1.metric("Countries", S["n_countries"])
-    cs1.metric("Studies", S["n"])
-    cs2.metric("Tools", S["n_tools"])
-    cs2.metric("Period", f"{S['y0']}–{S['y1']}")
-    st.markdown("---")
-    st.markdown(
-        "<p style='font-size:0.78rem; color:var(--text-color); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;'>Views</p>",
-        unsafe_allow_html=True)
-    st.markdown(
-        """<ul style='font-size:0.82rem; line-height:2; padding-left:1rem;'>
-        <li>🗺 <b>Map</b> — where modelling happens</li>
-        <li>📊 <b>Gap Analysis</b> — who models, what's missing</li>
-        <li>📈 <b>Readiness</b> — country readiness scores</li>
-        <li>🔍 <b>Browse Studies</b> — explore the inventory</li>
-        <li>🛠 <b>Recommender</b> — find the right tool</li>
-        <li>📖 <b>Methodology</b> — how scores are built</li>
-        </ul>""", unsafe_allow_html=True)
-    st.markdown("---")
     import os, datetime as dt
     _db_path = "data/enermod.db"
     if os.path.exists(_db_path):
@@ -115,6 +93,7 @@ with st.sidebar:
             f"DB updated: {_mtime.strftime('%Y-%m-%d %H:%M')}</p>",
             unsafe_allow_html=True)
         
+    render_partner_logos()
     st.markdown(
         "<p style='font-size:0.69rem; color:var(--text-color); font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2026</p>",
         unsafe_allow_html=True)
@@ -185,30 +164,6 @@ st.caption("Author institutions by country, counted once per study ")
 
 st.divider()
 
-col_chart, col_nav = st.columns([3, 2])
-with col_chart:
-    fig = px.bar(S["by_year"], x="Year", y="Studies",
-                 color_discrete_sequence=[GREEN],
-                 title="Studies by publication year")
-    fig.update_layout(height=300, margin={"t": 40, "b": 0, "l": 0, "r": 0},
-                      paper_bgcolor="rgba(0,0,0,0)", xaxis=dict(dtick=2),
-                      yaxis_title="Studies", xaxis_title="")
-    st.plotly_chart(fig, use_container_width=True)
-
-with col_nav:
-    st.markdown("<h4 style='font-family:Georgia,serif; margin-bottom:0;'>Follow the storyline</h4>",
-                unsafe_allow_html=True)
-    st.markdown("""
-1. **🗺 Map** — where is Africa being modelled?
-2. **📊 Gap Analysis** — who models, and what do they leave out?
-3. **📈 Readiness** — which countries are ready to use models?
-4. **🔍 Browse Studies** — explore the full evidence
-5. **🛠 Recommender** — which tool fits your context?
-6. **📖 Methodology** — how every score is computed
-""")
-
-st.divider()
-
 # ── What's in this inventory (transparency block, visible to lambda visitors) ──
 _studies_for_breakdown = load_studies()
 _lvl_counts = _studies_for_breakdown["extraction_level"].fillna("(unclassified)").value_counts().to_dict()
@@ -242,6 +197,29 @@ with sc2:
         f"Techno-economic, GIS, mini-grid, electrification and calculators — HOMER, OnSSET, "
         f"GACMO. Core fields only.</p>",
         unsafe_allow_html=True)
+st.divider()
+
+fig = px.bar(S["by_year"], x="Year", y="Studies",
+                color_discrete_sequence=[GREEN],
+                title="Studies by publication year")
+fig.update_layout(height=300, margin={"t": 40, "b": 0, "l": 0, "r": 0},
+                    paper_bgcolor="rgba(0,0,0,0)", xaxis=dict(dtick=2),
+                    yaxis_title="Studies", xaxis_title="")
+st.plotly_chart(fig, use_container_width=True)
+
+
+st.divider()
+
+st.markdown("<h4 style='font-family:Georgia,serif; margin-bottom:0;'>Follow the storyline</h4>",
+            unsafe_allow_html=True)
+st.markdown("""
+1. **🗺 Map** — where is Africa being modelled?
+2. **📊 Gap Analysis** — who models, and what do they leave out?
+3. **📈 Readiness** — which countries are ready to use models?
+4. **🔍 Browse Studies** — explore the full evidence
+5. **🛠 Recommender** — which tool fits your context?
+6. **📖 Methodology** — how every score is computed
+""")
 st.divider()
 
 st.markdown(

@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import streamlit as st
 from utils.data import load_studies, load_countries
-from utils.ui import SIDEBAR_CSS, render_logo
+from utils.ui import SIDEBAR_CSS, render_logo, render_partner_logos
 
 st.set_page_config(page_title="Methodology | AISESA", layout="wide", page_icon="assets/aisesa_logo.png")
 st.html(SIDEBAR_CSS)
@@ -50,6 +50,8 @@ with st.sidebar:
         "· Recommender scoring<br>· Limitations</p>",
         unsafe_allow_html=True)
     st.markdown("---")
+
+    render_partner_logos()
     st.markdown(
         "<p style='font-size:0.68rem; color:var(--text-color); font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2026</p>",
         unsafe_allow_html=True)

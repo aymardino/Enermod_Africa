@@ -82,6 +82,8 @@ CREATE TABLE tools (
     learning_curve TEXT, doc_quality TEXT, training_available TEXT, community TEXT,
     programming_required TEXT, helpdesk TEXT, os TEXT, nb_studies_in_inventory INTEGER,
     best_for TEXT, clean_cooking_capable TEXT, financing_modelling TEXT,
+    time_horizon TEXT, scale TEXT, data_intensity TEXT, proprietary_dependency TEXT,
+    info_source TEXT, info_date TEXT,
     strengths TEXT, weaknesses TEXT, typical_results TEXT, often_linked TEXT
 );
 CREATE TABLE studies (

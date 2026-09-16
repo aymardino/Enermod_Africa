@@ -8,7 +8,7 @@ import streamlit as st
 import plotly.express as px
 import pandas as pd
 from utils.data import load_countries, load_studies, enrich_countries, get_country_studies, db_cache_token
-from utils.ui import SIDEBAR_CSS, render_logo
+from utils.ui import SIDEBAR_CSS, render_logo, render_partner_logos
 
 st.set_page_config(page_title="Map | AISESA", layout="wide", page_icon="assets/aisesa_logo.png")
 st.html(SIDEBAR_CSS)
@@ -82,6 +82,8 @@ with st.sidebar:
     )
 
     st.markdown("---")
+
+    render_partner_logos()
     st.markdown(
         "<p style='font-size:0.69rem; color:var(--text-color); font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2026</p>",
         unsafe_allow_html=True,

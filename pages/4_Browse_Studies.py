@@ -13,7 +13,7 @@ import streamlit as st
 import plotly.express as px
 import pandas as pd
 from utils.data import load_studies, load_countries, db_cache_token
-from utils.ui import SIDEBAR_CSS, render_logo, level_label
+from utils.ui import SIDEBAR_CSS, render_logo, level_label, render_partner_logos
 
 st.set_page_config(page_title="Browse Studies | AISESA", layout="wide", page_icon="assets/aisesa_logo.png")
 st.html(SIDEBAR_CSS)
@@ -85,6 +85,8 @@ with st.sidebar:
     selected_techs = st.multiselect("Must include technology", tech_avail, default=[], placeholder="Any")
 
     st.markdown("---")
+
+    render_partner_logos()
     st.markdown(
         "<p style='font-size:0.69rem; color:var(--text-color); font-style:italic; line-height:1.5;'>AISESA · MINES Paris-PSL<br/>Research Platform · 2026</p>",
         unsafe_allow_html=True)
@@ -124,6 +126,7 @@ with col_h2:
                                 label_visibility="collapsed")
 if search_text:
     mask = (filt["model_name"].str.lower().str.contains(search_text.lower(), na=False) |
+            filt["tools"].str.lower().str.contains(search_text.lower(), na=False) |
             filt["authors"].str.lower().str.contains(search_text.lower(), na=False))
     filt = filt[mask]
     st.caption(f"After text search: {len(filt)} results")
@@ -163,14 +166,14 @@ st.divider()
 # ── Studies table (compact) ──────────────────────────────────────────────────────
 st.markdown("#### Studies")
 display_cols = [c for c in [
-    "id", "model_name", "authors", "year", "extraction_level", "scale", "approach",
-    "method", "open_source", "sdg_7", "local_ownership", "countries",
+    "id", "model_name", "tools", "authors", "year", "extraction_level", "scale", "approach",
+    "method", "open_source", "sdg_7", "local_ownership", "countries", "link",
 ] if c in filt.columns]
 rename = {
-    "id": "ID", "model_name": "Model", "authors": "Authors", "year": "Year",
+    "id": "ID", "model_name": "Model", "tools": "Tools used", "authors": "Authors", "year": "Year",
     "extraction_level": "Model scope", "scale": "Scale", "approach": "Approach",
     "method": "Method", "open_source": "License",
-    "sdg_7": "SDG 7", "local_ownership": "Local", "countries": "Countries",
+    "sdg_7": "SDG 7", "local_ownership": "Local", "countries": "Countries", "link": "Link",
 }
 disp = filt[display_cols].rename(columns=rename).reset_index(drop=True)
 if "Model scope" in disp.columns:
@@ -179,8 +182,14 @@ if "Authors" in disp.columns:
     disp["Authors"] = disp["Authors"].str.slice(0, 40)
 if "Countries" in disp.columns:
     disp["Countries"] = disp["Countries"].str.slice(0, 50)
+if "Tools used" in disp.columns:
+    disp["Tools used"] = disp["Tools used"].str.slice(0, 50)
 st.dataframe(disp, use_container_width=True, hide_index=True, height=380,
-             column_config={"Year": st.column_config.NumberColumn(format="%d")})
+             column_config={
+                 "Year": st.column_config.NumberColumn(format="%d"),
+                 "Link": st.column_config.LinkColumn(
+                     "Link", display_text=r"^https?://(?:dx\.)?doi\.org/(.*)$"),
+             })
 
 # ── Per-study detail panel ───────────────────────────────────────────────────────
 st.markdown("#### Study detail")
@@ -238,6 +247,6 @@ if chosen is not None:
 
     st.markdown(f"**Countries:** {show(s.get('countries'))}")
 
-    doi = show(s.get("link_doi"))
+    doi = show(s.get("link"))
     if not doi.startswith("_"):
         st.markdown(f"**Source:** [{doi}]({doi})")

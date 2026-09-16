@@ -98,6 +98,13 @@ from pathlib import Path
 
 _LOGO_PATH = str(Path(__file__).parent.parent / "assets" / "aisesa_logo.png")
 
+_PARTNER_LOGO_PATH = str(Path(__file__).parent.parent / "assets" / "mines_psl_tti5.png")
+
+
+def render_partner_logos():
+    """Mines Paris-PSL / TTI.5 strip. Call it inside a `with st.sidebar:` block."""
+    st.image(_PARTNER_LOGO_PATH, use_container_width=True)
+
 
 def render_logo():
     """Place the AISESA logo at the top of the sidebar (single green logo, used
