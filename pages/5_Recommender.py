@@ -16,6 +16,7 @@ import streamlit as st
 import pandas as pd
 from utils.data import load_tools, db_cache_token
 from utils.ui import SIDEBAR_CSS, render_logo
+from utils.chat import render_chat
 
 st.set_page_config(page_title="Recommender | AISESA", layout="wide", page_icon="assets/aisesa_logo.png")
 st.html(SIDEBAR_CSS)
@@ -444,18 +445,36 @@ if open_only:
     rankable = rankable[rankable["license"].map(_s) == "open_source"]
 
 # ── Results ─────────────────────────────────────────────────────────────────────
+# The ranking is stored in the session so that it survives the reruns triggered by
+# the detail panel and the chat below (a button is only True on the click itself).
 if run:
     scored = []
     for _, t in rankable.iterrows():
         sc = score_tool(t.to_dict(), policy_q, scale_q, budget_q, capacity_q, horizon_q, data_q, extras)
         scored.append({**t.to_dict(), "match_score": sc})
     scored_df = pd.DataFrame(scored).sort_values("match_score", ascending=False).head(8)
-    scored_df = add_source_columns(scored_df)
+    answers = {"Objective": policy_q, "Scale": scale_q, "Budget": budget_q, "Capacity": capacity_q,
+               "Horizon": horizon_q, "Data": data_q, "Requirements": ", ".join(extras) or "none"}
+    st.session_state["reco"] = {
+        "scored": add_source_columns(scored_df),
+        "answers": answers, "open_only": open_only, "n_ranked": len(rankable),
+    }
 
-    st.subheader("Recommended Tools")
+reco = st.session_state.get("reco")
+chat_context = ""
+
+if reco is not None:
+    scored_df = reco["scored"]
+    head_col, clear_col = st.columns([6, 1])
+    head_col.subheader("Recommended Tools")
+    if clear_col.button("Clear results"):
+        st.session_state.pop("reco", None)
+        st.rerun()
+    answered = "; ".join(f"{k}: {v}" for k, v in reco["answers"].items() if v)
+    st.caption(f"Results for {answered}.")
     notes = []
-    if open_only:
-        notes.append(f"Only the {len(rankable)} open-source tools are ranked, as requested.")
+    if reco["open_only"]:
+        notes.append(f"Only the {reco['n_ranked']} open-source tools are ranked, as requested.")
     if n_internal:
         notes.append(f"{n_internal} in-house models that are not publicly available (licence: internal) "
                      "are listed in the inventory but never ranked.")
@@ -513,6 +532,13 @@ if run:
     )
     st.divider()
     tool_detail(scored_df, key="detail_ranked")
+
+    ranking = ", ".join(f"{t} ({int(s_)})" for t, s_ in zip(scored_df["tool_name"], scored_df["match_score"]))
+    chat_context = ("User answers: " + answered + "\nRanking (tool, score): " + ranking +
+                    "\nScoring weights: objective match +30 (+10 tool type); scale fit +12; "
+                    "licence budget -25 to +15; capacity and support -20 to +23; time horizon +10; "
+                    "data fit -8 to +10; African track record +5 to +10; optional requirements -15 to +10; "
+                    "open-source requirement filters the ranking; in-house models are never ranked.")
 else:
     st.info("Select your context above and click **Get Recommendations** to see matched tools.")
     st.divider()
@@ -533,3 +559,6 @@ else:
     )
     st.divider()
     tool_detail(tools, key="detail_all")
+
+st.divider()
+render_chat(tools, chat_context)

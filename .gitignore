@@ -1,3 +1,12 @@
+# Secrets
+.streamlit/secrets.toml
+.env
+ 
+# Python
 __pycache__/
 *.pyc
+.venv/
+ 
+# Local data and scratch
+*.db-journal
 .DS_Store
