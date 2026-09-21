@@ -16,7 +16,7 @@ _WORLD_ISO3, _WORLD_NAMES = _build_world_maps()
 ISO2_TO_ISO3_WORLD = {**_WORLD_ISO3, **ISO2_TO_ISO3}
 AFRICAN_ISOS = set(ISO2_TO_ISO3)
 
-_GEO = dict(projection_type="equal earth", showframe=False, showcoastlines=False,
+_GEO = dict(projection_type="natural earth", showframe=False, showcoastlines=False,
             showland=True, landcolor="rgba(128,128,128,0.10)",
             showcountries=True, countrycolor="rgba(128,128,128,0.20)",
             bgcolor="rgba(0,0,0,0)")
