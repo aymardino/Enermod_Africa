@@ -154,7 +154,12 @@ def compute_gap_score(row) -> float:
         Transparency, Jan 2022)                                          30%
       - energy governance (World Bank/ESMAP RISE 2023, proxy for
         institutional capacity — see readiness docstring for caveat)     20%
-      - number of distinct models applied there                         15%
+      - number of distinct tools used in the studies covering the
+        country, capped at 10                                            15%
+
+    The tool count comes from `n_tools`, computed in enrich_countries().
+    Do not use `nb_models_applied` here: despite its name it counts the
+    studies covering the country (it feeds the "Studies applied" map).
 
     Countries with no RISE coverage (15/54) get the neutral mid-value for
     governance, so they are neither rewarded nor penalised for missing data.
@@ -168,7 +173,7 @@ def compute_gap_score(row) -> float:
     gov_raw = str(row.get("energy_governance", "") or "").strip()
     gov = gov_map.get(gov_raw, 1)  # blank -> neutral
 
-    n = min(row.get("nb_models_applied", 0), 10)
+    n = min(row.get("n_tools", 0), 10)
 
     return round(
         (1 - feat) * 35
@@ -198,8 +203,8 @@ def compute_readiness(row) -> float:
     complement once the full study extraction is done.
 
     Returns None when energy_governance is not assessed (15/54 countries,
-    mostly small island states), so these countries show as "not ranked"
-    rather than scoring artificially low.
+    mostly small countries, five of them island states), so these countries
+    show as "not ranked" rather than scoring artificially low.
     """
     gov_raw = str(row.get("energy_governance", "") or "").strip()
     if not gov_raw:
@@ -237,8 +242,13 @@ def enrich_countries(countries: pd.DataFrame, studies: pd.DataFrame) -> pd.DataF
                 assessed = col[(col != "") & (col != "nan")]
                 ratios.append((assessed == "yes").sum() / len(assessed) if len(assessed) else 0)
             feats = sum(ratios) / len(dims)
+        # Distinct tools used in the studies covering the country (no tool name contains a comma).
+        tools = set()
+        for t in cs["tools"] if "tools" in cs.columns else []:
+            tools.update(x.strip() for x in str(t).split(",") if x.strip())
         row = c.to_dict()
         row["n_studies_actual"] = n
+        row["n_tools"] = len(tools)
         row["feature_ratio"] = feats
         row["gap_score"] = compute_gap_score({**row})
         row["readiness_score"] = compute_readiness(row)

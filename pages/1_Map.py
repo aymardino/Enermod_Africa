@@ -249,13 +249,17 @@ if selected:
 
     if not c_studies.empty:
         st.markdown(f"**{len(c_studies)} studies** cover {selected} in this period:")
-        dcols = [c for c in ["model_name","year","scale","approach","open_source",
+        dcols = [c for c in ["model_name","tools","year","scale","approach","open_source",
                              "local_ownership","sdg_7","sdg_13","full_title","authors","link_doi"]
                  if c in c_studies.columns]
         disp = c_studies[dcols].reset_index(drop=True).copy()
         col_config = {}
         if "full_title" in disp.columns:
             col_config["full_title"] = st.column_config.TextColumn("Title", width="medium")
+        if "tools" in disp.columns:
+            col_config["tools"] = st.column_config.TextColumn(
+                "Tools used", width="medium",
+                help="Every tool applied in the study (study_tools table)")
         if "link_doi" in disp.columns:
             col_config["link_doi"] = st.column_config.LinkColumn(
                 "DOI", display_text="Open ↗",
